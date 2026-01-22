@@ -108,13 +108,20 @@ export default function ProfileInspector(props: { acctOrId: string }) {
         <div className="ghost-card overflow-hidden">
           {a.header ? (
             <div className="h-[140px] w-full overflow-hidden border-b-2 border-white/15">
-              <img src={a.header} alt="" className="h-full w-full object-cover opacity-90" />
+              <img src={a.header} alt="" className="h-full w-full object-cover opacity-90" loading="lazy" decoding="async" />
             </div>
           ) : null}
 
           <div className="p-4">
             <div className="flex items-start gap-3">
-              <img src={a.avatar} alt="" className="h-16 w-16 border-2 border-white/20 bg-black/30 object-cover" style={{ borderRadius: 'var(--g-radius)' }} />
+              <img
+                src={a.avatar}
+                alt=""
+                className="h-16 w-16 border-2 border-white/20 bg-black/30 object-cover"
+                style={{ borderRadius: 'var(--g-radius)' }}
+                loading="lazy"
+                decoding="async"
+              />
               <div className="min-w-0 flex-1">
                 <div className="text-[14px] font-black uppercase tracking-[0.18em] text-white/90 truncate">
                   {a.displayName || a.acct}

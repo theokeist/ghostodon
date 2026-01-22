@@ -25,11 +25,10 @@ export default function App() {
     html.classList.add('ui-brutal-v3');
     html.classList.remove(
       'ui-brutal',
-      'theme-fb',
-      'theme-space-cadet',
-      'theme-korean-flower',
-      'theme-cyber-red',
-      'theme-cyber-cyan'
+      'theme-brutal',
+      'theme-candy',
+      'theme-corporate',
+      'theme-startups'
     );
     html.classList.add(`theme-${theme}`);
     document.body.classList.toggle('effects-noise', noise);
