@@ -2,42 +2,7 @@ import * as React from 'react';
 import type { GStatus } from '@ghostodon/core';
 import { useStoriesStore } from '@ghostodon/state';
 import { cn } from '@ghostodon/ui';
-
-type StoryAccount = {
-  id: string;
-  acct: string;
-  displayName?: string;
-  avatar: string;
-  hasStory: boolean;
-};
-
-function buildStoriesFromStatuses(statuses: GStatus[]): StoryAccount[] {
-  const map = new Map<string, StoryAccount>();
-
-  for (const s0 of statuses) {
-    const s = (s0 as any).reblog ?? s0;
-    const a = s.account;
-    if (!a) continue;
-
-    const key = a.id || a.acct;
-    const hasStory = (s.media?.length ?? 0) > 0;
-
-    const prev = map.get(key);
-    if (!prev) {
-      map.set(key, {
-        id: a.id || a.acct,
-        acct: a.acct,
-        displayName: a.displayName,
-        avatar: a.avatar,
-        hasStory,
-      });
-    } else if (hasStory && !prev.hasStory) {
-      prev.hasStory = true;
-    }
-  }
-
-  return Array.from(map.values());
-}
+import { buildStoriesFromStatuses } from './storyData';
 
 /**
  * Stories rail for the feed.
@@ -67,7 +32,7 @@ export default function StoriesRail(props: { statuses?: GStatus[]; className?: s
           >
             <div className={cn('ghost-story-ring', a.hasStory ? 'ghost-story-ring--on' : 'ghost-story-ring--off')}>
               <div className="ghost-story-ring-inner">
-                <img src={a.avatar} alt="" className="ghost-story-avatar" loading="lazy" />
+                <img src={a.avatar} alt="" className="ghost-story-avatar" loading="lazy" decoding="async" />
               </div>
             </div>
             <div className="ghost-story-label">{(a.displayName || a.acct).slice(0, 14)}</div>
