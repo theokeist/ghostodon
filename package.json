@@ -1,0 +1,25 @@
+{
+  "name": "ghostodon",
+  "private": true,
+  "version": "0.2.0",
+  "packageManager": "pnpm@9.15.0",
+  "scripts": {
+    "preinstall": "node -e \"const p=process.env.npm_execpath||''; if(!p.toLowerCase().includes('pnpm')){console.error('Ghostodon is a pnpm workspace repo. Use: pnpm install'); process.exit(1)}\"",
+    "dev": "pnpm --filter @ghostodon/core build && pnpm --filter @ghostodon/web dev",
+    "dev:web": "pnpm --filter @ghostodon/core build && pnpm --filter @ghostodon/web dev",
+    "dev:desktop": "pnpm --filter @ghostodon/desktop-app tauri:dev",
+    "build": "pnpm -r build",
+    "build:web": "pnpm --filter @ghostodon/web build",
+    "build:desktop": "pnpm --filter @ghostodon/desktop-app tauri:build",
+    "preview": "pnpm --filter @ghostodon/web preview",
+    "lint": "pnpm -r lint",
+    "format": "pnpm -r format",
+    "setup": "node scripts/setup.mjs",
+    "bootstrap": "pnpm install",
+    "build:all": "pnpm -r build",
+    "fetch:deps": "pnpm fetch",
+    "install:offline": "pnpm install --offline",
+    "prepare:all": "pnpm install && pnpm -r build",
+    "clean": "node scripts/clean.mjs"
+  }
+}

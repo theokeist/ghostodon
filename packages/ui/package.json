@@ -1,0 +1,13 @@
+{
+  "name": "@ghostodon/ui",
+  "private": true,
+  "version": "0.2.0",
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "peerDependencies": {
+    "react": "^18.2.0 || ^19.0.0",
+    "react-dom": "^18.2.0 || ^19.0.0"
+  }
+}

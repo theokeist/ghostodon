@@ -1,0 +1,25 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "Ghostodon",
+  "version": "0.1.0",
+  "identifier": "art.hcode.ghostodon",
+  "build": {
+    "beforeDevCommand": "pnpm --filter @ghostodon/core build && pnpm --filter @ghostodon/web dev -- --host 127.0.0.1 --port 5173",
+    "devUrl": "http://127.0.0.1:5173",
+    "beforeBuildCommand": "pnpm --filter @ghostodon/core build && pnpm --filter @ghostodon/web build",
+    "frontendDist": "../web/dist"
+  },
+  "app": {
+    "windows": [
+      {
+        "title": "Ghostodon",
+        "width": 1320,
+        "height": 860,
+        "resizable": true
+      }
+    ],
+    "security": {
+      "csp": null
+    }
+  }
+}
