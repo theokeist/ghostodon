@@ -208,7 +208,12 @@ html.ui-brutal-v3 .ghost-pane-header {
   padding: 0.78rem 1.1rem;
   height: 48px;
 }
-.ghost-btn:focus-visible { outline: 2px solid rgba(var(--g-accent),0.55); outline-offset: 2px; }
+.ghost-btn:focus-visible {
+  outline: none;
+  box-shadow:
+    0 0 0 2px rgba(var(--g-accent),0.55),
+    calc(var(--g-shadow-sm) - 2px) calc(var(--g-shadow-sm) - 2px) 0 rgba(0,0,0,0.55);
+}
 .ghost-btn:active { transform: translate(1px, 1px); box-shadow: calc(var(--g-shadow-sm) - 4px) calc(var(--g-shadow-sm) - 4px) 0 rgba(0,0,0,0.55); }
 
 .ghost-btn--sm { height: 40px; padding: 0.62rem 0.95rem; font-size: 12px; }
@@ -298,13 +303,9 @@ html.ui-brutal-v3 .ghost-pane-header {
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  color: rgba(var(--g-accent),0.95);
 }
-.ghost-brand-glyph {
-  width: 14px;
-  height: 14px;
-  background: rgba(var(--g-accent),0.95);
-  transform: rotate(45deg);
-}
+.ghost-brand-icon { width: 18px; height: 18px; }
 .ghost-wordmark { font-weight: 950; letter-spacing: 0.22em; text-transform: uppercase; }
 .ghost-wordmark--sm { font-size: 12px; }
 .ghost-wordmark--md { font-size: 13px; }
@@ -355,6 +356,34 @@ html.ui-brutal-v3 .ghost-pane-header {
   box-shadow: var(--g-shadow-sm) var(--g-shadow-sm) 0 rgba(var(--g-accent),0.35);
 }
 
+.ghost-leftnav {
+  padding: 6px;
+  gap: 12px;
+}
+.ghost-leftnav-section {
+  display:flex;
+  flex-direction:column;
+  gap: 8px;
+  padding: 8px;
+  border: 2px solid rgba(255,255,255,0.12);
+  border-radius: calc(var(--g-radius) + 2px);
+  background: rgba(0,0,0,0.18);
+  box-shadow: 6px 6px 0 rgba(0,0,0,0.55);
+}
+.ghost-leftnav-card {
+  border-radius: calc(var(--g-radius) + 2px);
+  background:
+    linear-gradient(135deg, rgba(var(--g-accent),0.08), transparent 60%),
+    rgba(0,0,0,0.24);
+}
+.ghost-leftnav-kicker {
+  font-size: 10px;
+  letter-spacing: 0.26em;
+  text-transform: uppercase;
+  font-weight: 900;
+  color: rgba(255,255,255,0.55);
+}
+
 /* Left nav icon layout */
 .ghost-navleft { display:flex; align-items:center; gap: 10px; min-width: 0; }
 .ghost-navicon {
@@ -363,8 +392,8 @@ html.ui-brutal-v3 .ghost-pane-header {
   display:flex;
   align-items:center;
   justify-content:center;
-  border: 2px solid rgba(255,255,255,0.18);
-  background: rgba(0,0,0,0.12);
+  border: 0;
+  background: transparent;
 }
 .ghost-navicon svg { width: 16px; height: 16px; opacity: 0.85; }
 .ghost-navitem--active .ghost-navicon { border-color: rgba(var(--g-accent),0.55); background: rgba(var(--g-accent),0.12); }
@@ -693,6 +722,52 @@ html.ui-brutal-v3 .ghost-pane-header {
 }
 .ghost-action:hover { background: rgba(var(--g-accent),0.18); border-color: rgba(var(--g-accent),0.40); }
 .ghost-metrics { margin-left:auto; display:flex; gap: 14px; color: rgba(255,255,255,0.55); font-size: 12px; }
+
+.ghost-surface-row {
+  border-radius: calc(var(--g-radius) - 2px);
+  background:
+    linear-gradient(135deg, rgba(var(--g-accent),0.08), transparent 55%),
+    rgba(0,0,0,0.22);
+}
+
+.ghost-tabbar {
+  display:flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items:center;
+  padding: 6px;
+  border: 2px solid rgba(255,255,255,0.14);
+  background: rgba(0,0,0,0.22);
+  border-radius: calc(var(--g-radius) + 2px);
+}
+.ghost-tabbar-item {
+  border: 2px solid rgba(255,255,255,0.16);
+  background: rgba(0,0,0,0.25);
+  padding: 6px 10px;
+  font-weight: 900;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  font-size: 11px;
+}
+.ghost-tabbar-item--active {
+  border-color: rgba(var(--g-accent),0.55);
+  background: rgba(var(--g-accent),0.18);
+}
+
+.ghost-accordion {
+  border: 2px solid rgba(255,255,255,0.14);
+  border-radius: calc(var(--g-radius) - 2px);
+  background: rgba(0,0,0,0.22);
+  padding: 8px 10px;
+}
+.ghost-accordion summary {
+  cursor: pointer;
+  font-size: 11px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  font-weight: 900;
+  color: rgba(255,255,255,0.75);
+}
 
 /* Portal pages (Login/Register) - brutal website vibe */
 .portal-wrap { max-width: 1040px; margin: 0 auto; }

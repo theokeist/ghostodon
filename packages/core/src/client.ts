@@ -19,6 +19,8 @@ export type GhostodonClient = {
     lookup(query: string): Promise<GAccount>;
     get(id: string): Promise<GAccount>;
     statuses(id: string, params?: any): Promise<GStatus[]>;
+    followers(id: string, params?: PageParams): Promise<GAccount[]>;
+    following(id: string, params?: PageParams): Promise<GAccount[]>;
   };
   timelines: {
     home(params?: PageParams): Promise<GStatus[]>;
@@ -80,6 +82,8 @@ export function createClient(session: Session): GhostodonClient {
       lookup: (q) => accounts.lookupAccount(masto, q),
       get: (id) => accounts.getAccount(masto, id),
       statuses: (id, params) => accounts.listAccountStatuses(masto, id, params),
+      followers: (id, params) => accounts.listFollowers(masto, id, params),
+      following: (id, params) => accounts.listFollowing(masto, id, params),
     },
     timelines: {
       home: (p) => timelines.home(masto, p),

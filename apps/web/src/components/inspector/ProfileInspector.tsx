@@ -15,6 +15,7 @@ export default function ProfileInspector(props: { acctOrId: string }) {
   const { client, sessionKey } = useGhostodon();
   const setInspector = useInspectorStore((s) => s.setInspector);
   const openStory = useStoriesStore((s) => s.openStory);
+  const [tab, setTab] = React.useState<'overview' | 'followers' | 'following'>('overview');
 
   const accountQ = useQuery({
     queryKey: ['account', props.acctOrId, sessionKey],
@@ -71,6 +72,28 @@ export default function ProfileInspector(props: { acctOrId: string }) {
     staleTime: 30_000
   });
 
+  const followersQ = useQuery({
+    queryKey: ['account-followers', accountQ.data?.id, sessionKey],
+    enabled: Boolean(client) && Boolean(accountQ.data?.id) && tab === 'followers',
+    queryFn: async () => {
+      if (!client) throw new Error('Not connected');
+      if (!accountQ.data?.id) return [];
+      return client.accounts.followers(accountQ.data.id, { limit: 20 });
+    },
+    staleTime: 30_000,
+  });
+
+  const followingQ = useQuery({
+    queryKey: ['account-following', accountQ.data?.id, sessionKey],
+    enabled: Boolean(client) && Boolean(accountQ.data?.id) && tab === 'following',
+    queryFn: async () => {
+      if (!client) throw new Error('Not connected');
+      if (!accountQ.data?.id) return [];
+      return client.accounts.following(accountQ.data.id, { limit: 20 });
+    },
+    staleTime: 30_000,
+  });
+
   const autoRef = useAutoLoadMore(
     () => {
       if (statusesQ.hasNextPage && !statusesQ.isFetchingNextPage) void statusesQ.fetchNextPage();
@@ -112,7 +135,7 @@ export default function ProfileInspector(props: { acctOrId: string }) {
             </div>
           ) : null}
 
-          <div className="p-4">
+          <div className="p-3">
             <div className="flex items-start gap-3">
               <img
                 src={a.avatar}
@@ -143,53 +166,151 @@ export default function ProfileInspector(props: { acctOrId: string }) {
                   </div>
                 </div>
 
-                {a.noteHtml ? (
-                  <div
-                    className="mt-3 prose prose-invert prose-p:my-2 prose-a:text-[rgba(var(--g-accent),0.95)] max-w-none text-[13px]"
-                    dangerouslySetInnerHTML={{ __html: a.noteHtml }}
-                  />
-                ) : null}
+                <details className="ghost-accordion mt-3">
+                  <summary>About</summary>
+                  {a.noteHtml ? (
+                    <div
+                      className="mt-2 prose prose-invert prose-p:my-2 prose-a:text-[rgba(var(--g-accent),0.95)] max-w-none text-[13px]"
+                      dangerouslySetInnerHTML={{ __html: a.noteHtml }}
+                    />
+                  ) : (
+                    <div className="mt-2 text-[12px] text-white/50">No bio provided.</div>
+                  )}
+                </details>
               </div>
             </div>
           </div>
         </div>
       ) : null}
 
-      <div className="mt-2 flex items-center justify-between">
-        <div className="text-[12px] font-black uppercase tracking-[0.22em] text-[rgba(var(--g-accent),0.92)]">Recent posts</div>
-        <Button size="sm" onClick={() => setInspector({ type: 'compose' })}>New</Button>
+      <div className="ghost-tabbar">
+        <button
+          type="button"
+          className={tab === 'overview' ? 'ghost-tabbar-item ghost-tabbar-item--active' : 'ghost-tabbar-item'}
+          onClick={() => setTab('overview')}
+        >
+          Overview
+        </button>
+        <button
+          type="button"
+          className={tab === 'followers' ? 'ghost-tabbar-item ghost-tabbar-item--active' : 'ghost-tabbar-item'}
+          onClick={() => setTab('followers')}
+        >
+          Followers
+        </button>
+        <button
+          type="button"
+          className={tab === 'following' ? 'ghost-tabbar-item ghost-tabbar-item--active' : 'ghost-tabbar-item'}
+          onClick={() => setTab('following')}
+        >
+          Following
+        </button>
+        <Button size="sm" onClick={() => setInspector({ type: 'compose' })}>
+          New
+        </Button>
       </div>
 
-      <div className="flex flex-col gap-3">
-        {(statusesQ.data?.pages ?? []).flat().map((s) => (
-          <StatusCardWithComments
-            key={s.id}
-            status={s}
-            onOpen={() => setInspector({ type: 'thread', statusId: s.id })}
-            onProfile={(acctOrId) => setInspector({ type: 'profile', acctOrId })}
-            onReply={() => setInspector({ type: 'compose', replyToId: s.id })}
-            hasStory={(s.media?.length ?? 0) > 0}
-            onStory={() => openStory(s.account.id || s.account.acct)}
-          />
-        ))}
-        {!statusesQ.isFetching && ((statusesQ.data?.pages ?? []).flat().length ?? 0) === 0 ? (
-          <div className="text-[12px] text-white/40">No posts.</div>
-        ) : null}
+      {tab === 'overview' ? (
+        <div className="flex flex-col gap-3">
+          <div className="text-[12px] font-black uppercase tracking-[0.22em] text-[rgba(var(--g-accent),0.92)]">Recent posts</div>
+          {(statusesQ.data?.pages ?? []).flat().map((s) => (
+            <StatusCardWithComments
+              key={s.id}
+              status={s}
+              onOpen={() => setInspector({ type: 'thread', statusId: s.id })}
+              onProfile={(acctOrId) => setInspector({ type: 'profile', acctOrId })}
+              onReply={() => setInspector({ type: 'compose', replyToId: s.id })}
+              hasStory={(s.media?.length ?? 0) > 0}
+              onStory={() => openStory(s.account.id || s.account.acct)}
+            />
+          ))}
+          {!statusesQ.isFetching && ((statusesQ.data?.pages ?? []).flat().length ?? 0) === 0 ? (
+            <div className="text-[12px] text-white/40">No posts.</div>
+          ) : null}
 
-        <div className="mt-2">
-          {statusesQ.hasNextPage ? (
-            <Button
-              onClick={() => statusesQ.fetchNextPage()}
-              disabled={statusesQ.isFetchingNextPage}
-            >
-              {statusesQ.isFetchingNextPage ? 'Loading…' : 'Load more'}
-            </Button>
-          ) : (
-            <div className="text-[11px] text-white/35">End of profile posts.</div>
-          )}
+          <div className="mt-2">
+            {statusesQ.hasNextPage ? (
+              <Button
+                onClick={() => statusesQ.fetchNextPage()}
+                disabled={statusesQ.isFetchingNextPage}
+              >
+                {statusesQ.isFetchingNextPage ? 'Loading…' : 'Load more'}
+              </Button>
+            ) : (
+              <div className="text-[11px] text-white/35">End of profile posts.</div>
+            )}
+          </div>
+          <div ref={autoRef} />
         </div>
-        <div ref={autoRef} />
-      </div>
+      ) : null}
+
+      {tab === 'followers' ? (
+        <div className="flex flex-col gap-2">
+          {(followersQ.data ?? []).map((f) => (
+            <button
+              key={f.id}
+              type="button"
+              className="ghost-card ghost-surface-row p-2 text-left"
+              onClick={() => setInspector({ type: 'profile', acctOrId: f.id || f.acct })}
+            >
+              <div className="flex items-center gap-2">
+                <img
+                  src={f.avatar}
+                  alt=""
+                  className="h-10 w-10 border-2 border-white/20 bg-black/30 object-cover"
+                  style={{ borderRadius: 'var(--g-radius)' }}
+                  loading="lazy"
+                  decoding="async"
+                />
+                <div className="min-w-0">
+                  <div className="text-[12px] font-black uppercase tracking-[0.12em] text-white/90 truncate">
+                    {f.displayName || f.acct}
+                  </div>
+                  <div className="text-[11px] text-white/50 truncate">@{f.acct}</div>
+                </div>
+              </div>
+            </button>
+          ))}
+          {followersQ.isFetching ? <div className="text-[12px] text-white/40">Loading followers…</div> : null}
+          {!followersQ.isFetching && (followersQ.data?.length ?? 0) === 0 ? (
+            <div className="text-[12px] text-white/40">No followers to show.</div>
+          ) : null}
+        </div>
+      ) : null}
+
+      {tab === 'following' ? (
+        <div className="flex flex-col gap-2">
+          {(followingQ.data ?? []).map((f) => (
+            <button
+              key={f.id}
+              type="button"
+              className="ghost-card ghost-surface-row p-2 text-left"
+              onClick={() => setInspector({ type: 'profile', acctOrId: f.id || f.acct })}
+            >
+              <div className="flex items-center gap-2">
+                <img
+                  src={f.avatar}
+                  alt=""
+                  className="h-10 w-10 border-2 border-white/20 bg-black/30 object-cover"
+                  style={{ borderRadius: 'var(--g-radius)' }}
+                  loading="lazy"
+                  decoding="async"
+                />
+                <div className="min-w-0">
+                  <div className="text-[12px] font-black uppercase tracking-[0.12em] text-white/90 truncate">
+                    {f.displayName || f.acct}
+                  </div>
+                  <div className="text-[11px] text-white/50 truncate">@{f.acct}</div>
+                </div>
+              </div>
+            </button>
+          ))}
+          {followingQ.isFetching ? <div className="text-[12px] text-white/40">Loading following…</div> : null}
+          {!followingQ.isFetching && (followingQ.data?.length ?? 0) === 0 ? (
+            <div className="text-[12px] text-white/40">No following to show.</div>
+          ) : null}
+        </div>
+      ) : null}
     </div>
   );
 }

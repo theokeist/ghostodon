@@ -30,8 +30,8 @@ export const STAGES: Stage[] = [
   { id: 10, title: 'Search (accounts/posts/tags)', status: 'done' },
   { id: 11, title: 'Explore (trends)', status: 'wip', notes: 'Trends surfaced in Search panel' },
   { id: 12, title: 'Profile viewer', status: 'done' },
-  { id: 13, title: 'Followers / Following lists', status: 'wip', notes: 'Settings + profile wiring pending' },
-  { id: 14, title: 'Lists (create/edit + timeline)', status: 'wip', notes: 'Lists UI scaffolding pending' },
+  { id: 13, title: 'Followers / Following lists', status: 'wip', notes: 'Priority: profile tab list wired; pagination pending' },
+  { id: 14, title: 'Lists (create/edit + timeline)', status: 'wip', notes: 'Priority: lists UI scaffolding pending' },
   { id: 15, title: 'Filters / Mutes / Blocks UI', status: 'todo' },
   { id: 16, title: 'Bookmarks', status: 'todo' },
   { id: 17, title: 'Favourites', status: 'todo' },
@@ -41,7 +41,7 @@ export const STAGES: Stage[] = [
     id: 20,
     title: 'Media upload (v2 async) + attachment tray',
     status: 'wip',
-    notes: 'Core upload method present; UI not wired'
+    notes: 'Basic compose upload UI wired; alt text pending'
   },
   { id: 21, title: 'Media viewer overlay', status: 'todo' },
   { id: 22, title: 'Alt-text editor', status: 'todo' },
