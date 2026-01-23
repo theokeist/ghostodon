@@ -2,7 +2,7 @@ import React from 'react';
 import { useQuery, useInfiniteQuery } from '@tanstack/react-query';
 import { Button } from '@ghostodon/ui';
 import { useGhostodon } from '../lib/useClient';
-import { useInspectorStore, useSessionStore } from '@ghostodon/state';
+import { useInspectorStore, useSessionStore, useStoriesStore } from '@ghostodon/state';
 import StatusCardWithComments from '../components/StatusCardWithComments';
 import { useAutoLoadMore } from '../lib/useAutoLoadMore';
 

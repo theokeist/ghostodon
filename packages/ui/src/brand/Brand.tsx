@@ -12,7 +12,16 @@ export function BrandMark(props: { className?: string; label?: string }) {
       aria-label={props.label ?? 'Ghostodon'}
       title={props.label ?? 'Ghostodon'}
     >
-      <div className="ghost-brand-glyph" />
+      <svg className="ghost-brand-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+        <path
+          d="M6 9a6 6 0 1 1 12 0v9l-3-2-3 2-3-2-3 2z"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinejoin="round"
+        />
+        <circle cx="10" cy="11" r="1.2" fill="currentColor" />
+        <circle cx="14" cy="11" r="1.2" fill="currentColor" />
+      </svg>
     </div>
   );
 }

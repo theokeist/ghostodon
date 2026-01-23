@@ -21,11 +21,90 @@ function NavItem(props: { to: string; label: string; hint?: string; icon?: React
   );
 }
 
-function Icon(props: { d: string }) {
+function Icon(props: { children: React.ReactNode }) {
   return (
     <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <path d={props.d} stroke="currentColor" strokeWidth="2" strokeLinejoin="round" strokeLinecap="round" />
+      {props.children}
     </svg>
+  );
+}
+
+function HomeIcon() {
+  return (
+    <Icon>
+      <path d="m3 9 9-7 9 7" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" strokeLinecap="round" />
+      <path d="M9 22V12h6v10" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" strokeLinecap="round" />
+    </Icon>
+  );
+}
+
+function MapPinIcon() {
+  return (
+    <Icon>
+      <path
+        d="M20 10c0 4.993-5.539 10.193-7.399 11.799a2 2 0 0 1-2.402 0C8.539 20.193 3 14.993 3 10a7 7 0 0 1 14 0"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinejoin="round"
+        strokeLinecap="round"
+      />
+      <circle cx="12" cy="10" r="3" stroke="currentColor" strokeWidth="2" />
+    </Icon>
+  );
+}
+
+function GlobeIcon() {
+  return (
+    <Icon>
+      <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2" />
+      <path d="M2 12h20" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+      <path
+        d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinejoin="round"
+      />
+    </Icon>
+  );
+}
+
+function SearchIcon() {
+  return (
+    <Icon>
+      <circle cx="11" cy="11" r="8" stroke="currentColor" strokeWidth="2" />
+      <path d="m21 21-4.3-4.3" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+    </Icon>
+  );
+}
+
+function UserIcon() {
+  return (
+    <Icon>
+      <circle cx="12" cy="7" r="4" stroke="currentColor" strokeWidth="2" />
+      <path d="M5 21v-2a4 4 0 0 1 4-4h6a4 4 0 0 1 4 4v2" stroke="currentColor" strokeWidth="2" />
+    </Icon>
+  );
+}
+
+function KeyRoundIcon() {
+  return (
+    <Icon>
+      <circle cx="7" cy="15" r="5" stroke="currentColor" strokeWidth="2" />
+      <path d="M12 15h10" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+      <path d="M17 15v3" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+      <path d="M21 15v3" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+    </Icon>
+  );
+}
+
+function UserPlusIcon() {
+  return (
+    <Icon>
+      <circle cx="9" cy="7" r="4" stroke="currentColor" strokeWidth="2" />
+      <path d="M3 21v-2a4 4 0 0 1 4-4h4" stroke="currentColor" strokeWidth="2" />
+      <path d="M19 8v6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+      <path d="M22 11h-6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+    </Icon>
   );
 }
 
@@ -36,23 +115,33 @@ export default function LeftNav() {
   const extItems = plugins.navItems();
 
   return (
-    <div className="flex h-full flex-col gap-2">
+    <div className="ghost-leftnav flex h-full flex-col gap-2">
       <div className="px-1 pb-1">
         <BrandLockup subtitle="control room" />
       </div>
 
-      <NavItem to="/home" label="Home" hint="Ctrl+1" icon={<span>🏠</span>} />
-      <NavItem to="/local" label="Local" hint="Ctrl+2" icon={<span>📍</span>} />
-      <NavItem to="/federated" label="Federated" hint="Ctrl+3" icon={<span>🌐</span>} />
-      <NavItem to="/search" label="Search" hint="Ctrl+4" icon={<span>🔎</span>} />
-      <NavItem to="/me" label="Me" hint="Ctrl+5" icon={<span>👤</span>} />
+      <div className="ghost-leftnav-section">
+        <div className="ghost-leftnav-kicker">Timeline</div>
+        <NavItem to="/home" label="Home" hint="Ctrl+1" icon={<HomeIcon />} />
+        <NavItem to="/local" label="Local" hint="Ctrl+2" icon={<MapPinIcon />} />
+        <NavItem to="/federated" label="Federated" hint="Ctrl+3" icon={<GlobeIcon />} />
+      </div>
 
-      <NavItem to="/login" label="Login" icon={<span>🔑</span>} />
-      <NavItem to="/register" label="Register" icon={<span>✍️</span>} />
+      <div className="ghost-leftnav-section">
+        <div className="ghost-leftnav-kicker">Discovery</div>
+        <NavItem to="/search" label="Search" hint="Ctrl+4" icon={<SearchIcon />} />
+        <NavItem to="/me" label="Me" hint="Ctrl+5" icon={<UserIcon />} />
+      </div>
+
+      <div className="ghost-leftnav-section">
+        <div className="ghost-leftnav-kicker">Access</div>
+        <NavItem to="/login" label="Login" icon={<KeyRoundIcon />} />
+        <NavItem to="/register" label="Register" icon={<UserPlusIcon />} />
+      </div>
 
       {extItems.length ? (
-        <div className="mt-1 ghost-card p-3">
-          <div className="portal-kicker">Extensions</div>
+        <div className="mt-1 ghost-card ghost-leftnav-card p-3">
+          <div className="ghost-leftnav-kicker">Extensions</div>
           <div className="flex flex-col gap-2">
             {extItems.map((it) =>
               it.route ? (
@@ -72,8 +161,8 @@ export default function LeftNav() {
         </div>
       ) : null}
 
-      <div className="mt-2 ghost-card p-3">
-        <div className="portal-kicker">Session</div>
+      <div className="mt-2 ghost-card ghost-leftnav-card p-3">
+        <div className="ghost-leftnav-kicker">Session</div>
         {session ? (
           <div className="mt-1 text-[12px] text-white/60">
             <div className="truncate">{session.acct}</div>

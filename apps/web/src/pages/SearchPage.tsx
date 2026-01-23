@@ -36,6 +36,24 @@ export default function SearchPage() {
   const statuses = results?.statuses ?? [];
   const hashtags = results?.hashtags ?? [];
 
+  const trendItems = useMemo(() => {
+    if (hashtags.length) {
+      return hashtags.slice(0, 6).map((h) => ({
+        name: h.name,
+        url: h.url,
+        hint: 'Active now',
+      }));
+    }
+    return [
+      { name: 'productivity', hint: 'Climbing' },
+      { name: 'designops', hint: 'New posts' },
+      { name: 'opensource', hint: 'Hot' },
+      { name: 'artifacts', hint: 'New' },
+      { name: 'startup', hint: 'Trending' },
+      { name: 'workflow', hint: 'Weekly' },
+    ];
+  }, [hashtags]);
+
   const hint = useMemo(() => {
     if (!client) return 'Connect first (Login / manual token).';
     if (!submitted) return 'Type a query and hit Enter.';
@@ -48,61 +66,82 @@ export default function SearchPage() {
 
   return (
     <div className="flex flex-col gap-3">
-      <div className="ghost-card p-4">
-        <div className="portal-kicker">Search</div>
-        <div className="mt-2 flex flex-col gap-2">
-          <form
-            className="flex flex-col gap-2"
-            onSubmit={(e) => {
-              e.preventDefault();
-              setSubmitted(q);
-            }}
-          >
-            <Input
-              value={q}
-              onChange={(e) => setQ(e.target.value)}
-              placeholder="Search: @accounts, hashtags, keywords…"
-            />
-            <div className="flex flex-wrap items-center gap-2">
-              <Button size="sm" type="submit">Go</Button>
-              <Button
-                size="sm"
-                variant="ghost"
+      <div className="grid gap-3 lg:grid-cols-[1.2fr_0.8fr]">
+        <div className="ghost-card p-4">
+          <div className="portal-kicker">Search</div>
+          <div className="mt-2 flex flex-col gap-2">
+            <form
+              className="flex flex-col gap-2"
+              onSubmit={(e) => {
+                e.preventDefault();
+                setSubmitted(q);
+              }}
+            >
+              <Input
+                value={q}
+                onChange={(e) => setQ(e.target.value)}
+                placeholder="Search: @accounts, hashtags, keywords…"
+              />
+              <div className="flex flex-wrap items-center gap-2">
+                <Button size="sm" type="submit">Go</Button>
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  type="button"
+                  onClick={() => {
+                    setQ('');
+                    setSubmitted('');
+                  }}
+                >
+                  Clear
+                </Button>
+
+                <div className="ml-auto text-[12px] text-white/50">{hint}</div>
+              </div>
+            </form>
+
+            <div className="portal-tabs">
+              <button
+                className={"portal-tab " + (tab === 'statuses' ? 'portal-tab--active' : '')}
+                onClick={() => setTab('statuses')}
                 type="button"
-                onClick={() => {
-                  setQ('');
-                  setSubmitted('');
-                }}
               >
-                Clear
-              </Button>
-
-              <div className="ml-auto text-[12px] text-white/50">{hint}</div>
+                Posts
+              </button>
+              <button
+                className={"portal-tab " + (tab === 'accounts' ? 'portal-tab--active' : '')}
+                onClick={() => setTab('accounts')}
+                type="button"
+              >
+                Accounts
+              </button>
+              <button
+                className={"portal-tab " + (tab === 'hashtags' ? 'portal-tab--active' : '')}
+                onClick={() => setTab('hashtags')}
+                type="button"
+              >
+                Hashtags
+              </button>
             </div>
-          </form>
+          </div>
+        </div>
 
-          <div className="portal-tabs">
-            <button
-              className={"portal-tab " + (tab === 'statuses' ? 'portal-tab--active' : '')}
-              onClick={() => setTab('statuses')}
-              type="button"
-            >
-              Posts
-            </button>
-            <button
-              className={"portal-tab " + (tab === 'accounts' ? 'portal-tab--active' : '')}
-              onClick={() => setTab('accounts')}
-              type="button"
-            >
-              Accounts
-            </button>
-            <button
-              className={"portal-tab " + (tab === 'hashtags' ? 'portal-tab--active' : '')}
-              onClick={() => setTab('hashtags')}
-              type="button"
-            >
-              Hashtags
-            </button>
+        <div className="ghost-card ghost-trends p-4">
+          <div className="portal-kicker">Trends</div>
+          <div className="mt-2 text-[12px] text-white/55">Live pulse from tags & conversations.</div>
+          <div className="mt-3 flex flex-col gap-2">
+            {trendItems.map((trend) => (
+              <a
+                key={trend.name}
+                className="ghost-trends-item"
+                href={trend.url || '#'}
+                target={trend.url ? '_blank' : undefined}
+                rel={trend.url ? 'noreferrer' : undefined}
+              >
+                <div className="ghost-trends-tag">#{trend.name}</div>
+                <div className="ghost-trends-meta">{trend.hint}</div>
+              </a>
+            ))}
           </div>
         </div>
       </div>
@@ -149,6 +188,8 @@ export default function SearchPage() {
                   alt=""
                   className="h-12 w-12 border-2 border-white/20 bg-black/30 object-cover"
                   style={{ borderRadius: 'var(--g-radius)' }}
+                  loading="lazy"
+                  decoding="async"
                 />
                 <div className="min-w-0 flex-1">
                   <div className="text-[13px] font-black uppercase tracking-[0.14em] text-white/90 truncate">

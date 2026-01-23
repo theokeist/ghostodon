@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
-export type ThemeName = 'fb' | 'cyber-red' | 'cyber-cyan' | 'space-cadet' | 'korean-flower';
+export type ThemeName = 'brutal' | 'candy' | 'corporate' | 'startups';
 
 type ThemeState = {
   theme: ThemeName;
@@ -13,7 +13,7 @@ type ThemeState = {
 export const useThemeStore = create<ThemeState>()(
   persist(
     (set) => ({
-      theme: 'fb',
+      theme: 'brutal',
       noise: true,
       setTheme: (theme) => set({ theme }),
       setNoise: (noise) => set({ noise }),
