@@ -3,6 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import type { GAccount, GStatus } from '@ghostodon/core';
 import { Button } from '@ghostodon/ui';
 import { useGhostodon } from '../../lib/useClient';
+import { getStoryMedia } from './storyData';
 import { useInspectorStore, useStoriesStore, useUiPrefsStore } from '@ghostodon/state';
 
 function isIdLike(v: string): boolean {
@@ -34,7 +35,8 @@ function buildSlides(statuses: GStatus[]): Slide[] {
   const slides: Slide[] = [];
   for (const s0 of statuses) {
     const s = (s0 as any).reblog ?? s0;
-    const media = s.media ?? [];
+    const media = getStoryMedia(s);
+    const contentHtml = s.contentHtml ?? s.content ?? '';
     if (media.length > 0) {
       for (const m of media) {
         slides.push({
@@ -49,7 +51,10 @@ function buildSlides(statuses: GStatus[]): Slide[] {
       slides.push({
         key: `${s.id}:text`,
         kind: 'text',
-        status: s,
+        status: {
+          ...s,
+          contentHtml,
+        },
       });
     }
   }
@@ -126,7 +131,7 @@ export default function StoryViewer() {
 
   return (
     <div
-      className="ghost-storyviewer"
+      className={`ghost-storyviewer storyviewer ${storyStyle}`}
       role="dialog"
       aria-modal="true"
       onMouseDown={(e) => {
@@ -135,6 +140,12 @@ export default function StoryViewer() {
       }}
     >
       <div className="ghost-storyviewer-panel">
+        <div className="ghost-storyviewer-progress" aria-hidden="true">
+          {slides.map((item, i) => {
+            const state = i < index ? 'is-complete' : i === index ? 'is-active' : 'is-pending';
+            return <div key={item.key} className={`ghost-storyviewer-progress-item ${state}`} />;
+          })}
+        </div>
         <div className="ghost-storyviewer-head">
           <div className="ghost-storyviewer-title">
             {a?.avatar ? <img src={a.avatar} alt="" /> : null}
@@ -163,7 +174,7 @@ export default function StoryViewer() {
               <div className="text-[12px] text-white/55">Loading story…</div>
             ) : slide ? (
               slide.kind === 'image' ? (
-                <img src={slide.src} alt={slide.alt || ''} />
+                <img src={slide.src} alt={slide.alt || ''} loading="lazy" decoding="async" />
               ) : (
                 <div className="ghost-card p-4 max-w-[72ch]">
                   <div className="text-[12px] text-white/55">No media. Last post:</div>

@@ -15,10 +15,10 @@ export function SplitShell(props: {
   persistKey?: string;
 }) {
   const persistKey = props.persistKey ?? 'ghostodon.split';
-  const minLeft = props.minLeftPx ?? 220;
-  const maxLeft = props.maxLeftPx ?? 380;
-  const minRight = props.minRightPx ?? 320;
-  const maxRight = props.maxRightPx ?? 620;
+  const minLeft = props.minLeftPx ?? 200;
+  const maxLeft = props.maxLeftPx ?? 320;
+  const minRight = props.minRightPx ?? 280;
+  const maxRight = props.maxRightPx ?? 520;
 
   const readPersist = (): { left: number; right: number } | null => {
     try {
@@ -84,7 +84,7 @@ export function SplitShell(props: {
     };
   };
 
-  const gridCols = `${leftPx}px 18px minmax(420px, 1fr) 18px ${rightPx}px`;
+  const gridCols = `${leftPx}px 18px minmax(320px, 1fr) 18px ${rightPx}px`;
 
   return (
     <div

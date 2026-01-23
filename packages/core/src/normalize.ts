@@ -4,12 +4,26 @@ import type { GAccount, GMedia, GNotification, GSearchResult, GStatus, GContext,
 // We keep `raw` for escape hatches.
 
 export function normalizeAccount(a: any): GAccount {
+  const avatar =
+    a?.avatar ??
+    a?.avatar_static ??
+    a?.avatarStatic ??
+    a?.avatar_url ??
+    a?.avatarUrl ??
+    "";
+  const header =
+    a?.header ??
+    a?.header_static ??
+    a?.headerStatic ??
+    a?.header_url ??
+    a?.headerUrl;
+
   return {
     id: String(a?.id ?? ""),
     acct: String(a?.acct ?? ""),
     displayName: String(a?.displayName ?? a?.display_name ?? ""),
-    avatar: String(a?.avatar ?? a?.avatar_static ?? ""),
-    header: a?.header ? String(a.header) : a?.header_static ? String(a.header_static) : undefined,
+    avatar: String(avatar ?? ""),
+    header: header ? String(header) : undefined,
     url: a?.url ? String(a.url) : undefined,
     noteHtml: a?.note ? String(a.note) : undefined,
     followersCount: asNum(a?.followersCount ?? a?.followers_count),
@@ -22,15 +36,23 @@ export function normalizeAccount(a: any): GAccount {
 }
 
 export function normalizeMedia(m: any): GMedia {
+  const url =
+    m?.url ??
+    m?.media_url ??
+    m?.mediaUrl ??
+    m?.remote_url ??
+    m?.remoteUrl;
+  const previewUrl =
+    m?.previewUrl ??
+    m?.preview_url ??
+    m?.preview ??
+    m?.previewUrl;
+
   return {
     id: String(m?.id ?? ""),
     type: m?.type ? String(m.type) : undefined,
-    url: m?.url ? String(m.url) : undefined,
-    previewUrl: m?.previewUrl
-      ? String(m.previewUrl)
-      : m?.preview_url
-        ? String(m.preview_url)
-        : undefined,
+    url: url ? String(url) : undefined,
+    previewUrl: previewUrl ? String(previewUrl) : undefined,
     description: m?.description ?? null,
     raw: m,
   };
