@@ -3,6 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import type { GAccount, GStatus } from '@ghostodon/core';
 import { Button } from '@ghostodon/ui';
 import { useGhostodon } from '../../lib/useClient';
+import { getStoryMedia } from './storyData';
 import { useInspectorStore, useStoriesStore, useUiPrefsStore } from '@ghostodon/state';
 
 function isIdLike(v: string): boolean {
@@ -34,7 +35,8 @@ function buildSlides(statuses: GStatus[]): Slide[] {
   const slides: Slide[] = [];
   for (const s0 of statuses) {
     const s = (s0 as any).reblog ?? s0;
-    const media = s.media ?? [];
+    const media = getStoryMedia(s);
+    const contentHtml = s.contentHtml ?? s.content ?? '';
     if (media.length > 0) {
       for (const m of media) {
         slides.push({
@@ -49,7 +51,10 @@ function buildSlides(statuses: GStatus[]): Slide[] {
       slides.push({
         key: `${s.id}:text`,
         kind: 'text',
-        status: s,
+        status: {
+          ...s,
+          contentHtml,
+        },
       });
     }
   }
