@@ -5,6 +5,7 @@ import { useGhostodon } from '../lib/useClient';
 import { useInspectorStore, useSessionStore, useStoriesStore } from '@ghostodon/state';
 import StatusCardWithComments from '../components/StatusCardWithComments';
 import { useAutoLoadMore } from '../lib/useAutoLoadMore';
+import SurfaceOverlay from '../components/SurfaceOverlay';
 
 export default function MePage() {
   const { client, sessionKey } = useGhostodon();
@@ -58,7 +59,8 @@ export default function MePage() {
 
   if (!client || !session) {
     return (
-      <div className="ghost-card p-4 text-[13px] text-white/60">
+      <div className="ghost-card relative overflow-hidden p-4 text-[13px] text-white/60">
+        <SurfaceOverlay />
         Connect first.
       </div>
     );
@@ -82,7 +84,8 @@ export default function MePage() {
       </div>
 
       {a ? (
-        <div className="ghost-card overflow-hidden">
+        <div className="ghost-card relative overflow-hidden">
+          <SurfaceOverlay />
           {a.header ? (
             <div className="h-[140px] w-full overflow-hidden border-b-2 border-white/15">
               <img src={a.header} alt="" className="h-full w-full object-cover opacity-90" />
@@ -98,15 +101,18 @@ export default function MePage() {
                 <div className="mt-1 font-mono text-[12px] text-white/60 truncate">@{a.acct}</div>
 
                 <div className="mt-3 grid grid-cols-3 gap-2 text-[11px]">
-                  <div className="ghost-card p-2">
+                  <div className="ghost-card relative overflow-hidden p-2">
+                    <SurfaceOverlay />
                     <div className="text-white/40 uppercase tracking-[0.18em]">Posts</div>
                     <div className="text-white/85 font-black">{a.statusesCount ?? '—'}</div>
                   </div>
-                  <div className="ghost-card p-2">
+                  <div className="ghost-card relative overflow-hidden p-2">
+                    <SurfaceOverlay />
                     <div className="text-white/40 uppercase tracking-[0.18em]">Following</div>
                     <div className="text-white/85 font-black">{a.followingCount ?? '—'}</div>
                   </div>
-                  <div className="ghost-card p-2">
+                  <div className="ghost-card relative overflow-hidden p-2">
+                    <SurfaceOverlay />
                     <div className="text-white/40 uppercase tracking-[0.18em]">Followers</div>
                     <div className="text-white/85 font-black">{a.followersCount ?? '—'}</div>
                   </div>

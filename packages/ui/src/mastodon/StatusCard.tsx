@@ -46,110 +46,144 @@ export function StatusCard(props: {
     <article
       onClick={props.onOpen}
       className={cn(
-        'ghost-status group',
+        'ghost-status group relative overflow-hidden',
         props.selected ? 'ghost-status--selected' : null,
         props.className
       )}
     >
-      {rebloggedBy ? (
-        <div className="mb-2 text-[11px] text-white/40">
-          Boosted by <span className="text-white/60">@{rebloggedBy.acct}</span>
-        </div>
-      ) : null}
-
-      <div className="flex gap-2">
-        <button
-          type="button"
-          className="shrink-0"
-          onClick={(e) => {
-            e.stopPropagation();
-            if (props.hasStory && props.onStory) {
-            props.onStory();
-          } else {
-            props.onProfile?.(s.account.id || s.account.acct);
-          }
+      <div aria-hidden="true" className="pointer-events-none absolute inset-0">
+        <div
+          className="absolute inset-0 opacity-40"
+          style={{
+            backgroundImage:
+              'linear-gradient(135deg, rgba(var(--g-accent), 0.22), transparent 60%)',
           }}
-          title={`Open @${s.account.acct}`}
-        >
-          <img src={s.account.avatar} alt="" className={cn("ghost-avatar", props.hasStory ? "ghost-avatar--story" : null)} />
-        </button>
-        <div className="min-w-0 flex-1">
-          <div className="flex items-baseline gap-2">
-            <button
-              type="button"
-              className="ghost-name text-left"
-              onClick={(e) => {
-                e.stopPropagation();
-                if (props.hasStory && props.onStory) {
-            props.onStory();
-          } else {
-            props.onProfile?.(s.account.id || s.account.acct);
-          }
-              }}
-              title={`Open @${s.account.acct}`}
-            >
-              {s.account.displayName || s.account.acct}
-            </button>
-            <button
-              type="button"
-              className="ghost-handle"
-              onClick={(e) => {
-                e.stopPropagation();
-                if (props.hasStory && props.onStory) {
-            props.onStory();
-          } else {
-            props.onProfile?.(s.account.id || s.account.acct);
-          }
-              }}
-              title={`Open @${s.account.acct}`}
-            >
-              @{s.account.acct}
-            </button>
-            <div className="ghost-time">
-              {s.createdAt ? new Date(s.createdAt).toLocaleString() : ''}
-            </div>
+        />
+        <div
+          className="absolute inset-0 opacity-35"
+          style={{
+            backgroundImage:
+              'radial-gradient(circle, rgba(255,255,255,0.16) 1px, transparent 1.5px)',
+            backgroundSize: '18px 18px',
+          }}
+        />
+        <div
+          className="absolute -right-8 -top-8 h-20 w-20 rounded-full blur-2xl"
+          style={{ background: 'rgba(var(--g-accent-2), 0.18)' }}
+        />
+        <div
+          className="absolute bottom-0 left-0 h-[2px] w-full"
+          style={{
+            background:
+              'linear-gradient(90deg, rgba(var(--g-accent), 0.6), transparent)',
+          }}
+        />
+      </div>
+
+      <div className="relative z-10">
+        {rebloggedBy ? (
+          <div className="mb-2 text-[11px] text-white/40">
+            Boosted by <span className="text-white/60">@{rebloggedBy.acct}</span>
           </div>
+        ) : null}
 
-          {s.spoilerText ? (
-            <div className="mt-1 rounded-[var(--g-radius)] border border-white/10 bg-black/20 px-2 py-1">
-              <div className="text-[11px] font-semibold text-[rgba(var(--g-accent),0.9)]">CW</div>
-              <div className="text-[12px] text-white/70">{s.spoilerText}</div>
+        <div className="flex gap-2">
+          <button
+            type="button"
+            className="shrink-0"
+            onClick={(e) => {
+              e.stopPropagation();
+              if (props.hasStory && props.onStory) {
+                props.onStory();
+              } else {
+                props.onProfile?.(s.account.id || s.account.acct);
+              }
+            }}
+            title={`Open @${s.account.acct}`}
+          >
+            <img
+              src={s.account.avatar}
+              alt=""
+              className={cn('ghost-avatar', props.hasStory ? 'ghost-avatar--story' : null)}
+            />
+          </button>
+          <div className="min-w-0 flex-1">
+            <div className="flex items-baseline gap-2">
+              <button
+                type="button"
+                className="ghost-name text-left"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  if (props.hasStory && props.onStory) {
+                    props.onStory();
+                  } else {
+                    props.onProfile?.(s.account.id || s.account.acct);
+                  }
+                }}
+                title={`Open @${s.account.acct}`}
+              >
+                {s.account.displayName || s.account.acct}
+              </button>
+              <button
+                type="button"
+                className="ghost-handle"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  if (props.hasStory && props.onStory) {
+                    props.onStory();
+                  } else {
+                    props.onProfile?.(s.account.id || s.account.acct);
+                  }
+                }}
+                title={`Open @${s.account.acct}`}
+              >
+                @{s.account.acct}
+              </button>
+              <div className="ghost-time">
+                {s.createdAt ? new Date(s.createdAt).toLocaleString() : ''}
+              </div>
             </div>
-          ) : null}
 
-          <div
-            className="ghost-content prose prose-invert prose-p:my-1 prose-a:text-[rgba(var(--g-accent),0.95)] max-w-none"
-            // Mastodon content is server-sanitized HTML.
-            dangerouslySetInnerHTML={{ __html: s.contentHtml }}
-          />
+            {s.spoilerText ? (
+              <div className="mt-1 rounded-[var(--g-radius)] border border-white/10 bg-black/20 px-2 py-1">
+                <div className="text-[11px] font-semibold text-[rgba(var(--g-accent),0.9)]">CW</div>
+                <div className="text-[12px] text-white/70">{s.spoilerText}</div>
+              </div>
+            ) : null}
 
-          {s.media && s.media.length > 0 ? (
             <div
-              className="ghost-media-grid"
-              onClick={(e) => {
-                e.stopPropagation();
-              }}
-            >
-              {s.media.slice(0, 4).map((m) => (
-                <a
-                  key={m.id}
-                  href={m.url || m.previewUrl || '#'}
-                  target={m.url || m.previewUrl ? '_blank' : undefined}
-                  rel={m.url || m.previewUrl ? 'noreferrer' : undefined}
-                  className="ghost-media-item"
-                  title={m.description || 'Open media'}
-                  onClick={(e) => e.stopPropagation()}
-                >
-                  <img
-                    src={m.previewUrl || m.url || ''}
-                    alt={m.description || ''}
-                    loading="lazy"
-                    className="ghost-media-img"
-                  />
-                </a>
-              ))}
-            </div>
-          ) : null}
+              className="ghost-content prose prose-invert prose-p:my-1 prose-a:text-[rgba(var(--g-accent),0.95)] max-w-none"
+              // Mastodon content is server-sanitized HTML.
+              dangerouslySetInnerHTML={{ __html: s.contentHtml }}
+            />
+
+            {s.media && s.media.length > 0 ? (
+              <div
+                className="ghost-media-grid"
+                onClick={(e) => {
+                  e.stopPropagation();
+                }}
+              >
+                {s.media.slice(0, 4).map((m) => (
+                  <a
+                    key={m.id}
+                    href={m.url || m.previewUrl || '#'}
+                    target={m.url || m.previewUrl ? '_blank' : undefined}
+                    rel={m.url || m.previewUrl ? 'noreferrer' : undefined}
+                    className="ghost-media-item"
+                    title={m.description || 'Open media'}
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    <img
+                      src={m.previewUrl || m.url || ''}
+                      alt={m.description || ''}
+                      loading="lazy"
+                      className="ghost-media-img"
+                    />
+                  </a>
+                ))}
+              </div>
+            ) : null}
 
           {/* Comment preview (Facebook-ish affordance).
               IMPORTANT: Only render this block if the app layer wires lazy loading.
@@ -282,6 +316,7 @@ export function StatusCard(props: {
             </div>
           </div>
         </div>
+      </div>
       </div>
     </article>
   );

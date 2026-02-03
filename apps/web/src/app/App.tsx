@@ -8,6 +8,9 @@ import MePage from '../pages/MePage';
 import LoginPage from '../pages/LoginPage';
 import RegisterPage from '../pages/RegisterPage';
 import AuthCallbackPage from '../pages/AuthCallbackPage';
+import ComponentsPage from '../pages/ComponentsPage';
+import LayoutPage from '../pages/LayoutPage';
+import LayoutPrimitivesPage from '../pages/LayoutPrimitivesPage';
 import Inspector from '../components/Inspector';
 import StoryViewer from '../components/stories/StoryViewer';
 import { useInspectorStore, useThemeStore, useSessionStore } from '@ghostodon/state';
@@ -124,6 +127,9 @@ export default function App() {
               <Route path="/local" element={<TimelinePage mode="local" />} />
               <Route path="/federated" element={<TimelinePage mode="federated" />} />
               <Route path="/search" element={<SearchPage />} />
+              <Route path="/components" element={<ComponentsPage />} />
+              <Route path="/layout" element={<LayoutPage />} />
+              <Route path="/layout-primitives" element={<LayoutPrimitivesPage />} />
               <Route path="/me" element={<MePage />} />
               <Route path="*" element={<div className="text-white/60">Not found</div>} />
             </Routes>
