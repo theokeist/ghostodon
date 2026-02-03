@@ -3,15 +3,17 @@ import { Link, NavLink } from 'react-router-dom';
 import { Button, BrandLockup } from '@ghostodon/ui';
 import { plugins } from '@ghostodon/plugins';
 import { useInspectorStore, useSessionStore } from '@ghostodon/state';
+import SurfaceOverlay from './SurfaceOverlay';
 
 function NavItem(props: { to: string; label: string; hint?: string; icon?: React.ReactNode }) {
   return (
     <NavLink
       to={props.to}
       className={({ isActive }) =>
-        'ghost-navitem ' + (isActive ? 'ghost-navitem--active' : '')
+        'ghost-navitem relative overflow-hidden ' + (isActive ? 'ghost-navitem--active' : '')
       }
     >
+      <SurfaceOverlay />
       <span className="ghost-navleft">
         {props.icon ? <span className="ghost-navicon" aria-hidden="true">{props.icon}</span> : null}
         <span className="truncate">{props.label}</span>
@@ -108,6 +110,26 @@ function UserPlusIcon() {
   );
 }
 
+function LayersIcon() {
+  return (
+    <Icon>
+      <path d="M12 3 3 8l9 5 9-5-9-5Z" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" />
+      <path d="m3 13 9 5 9-5" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" />
+      <path d="m3 18 9 5 9-5" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" />
+    </Icon>
+  );
+}
+
+function LayoutIcon() {
+  return (
+    <Icon>
+      <rect x="3" y="4" width="8" height="16" stroke="currentColor" strokeWidth="2" />
+      <rect x="13" y="4" width="8" height="7" stroke="currentColor" strokeWidth="2" />
+      <rect x="13" y="13" width="8" height="7" stroke="currentColor" strokeWidth="2" />
+    </Icon>
+  );
+}
+
 export default function LeftNav() {
   const setInspector = useInspectorStore((s) => s.setInspector);
   const session = useSessionStore((s) => s.session);
@@ -130,6 +152,9 @@ export default function LeftNav() {
       <div className="ghost-leftnav-section">
         <div className="ghost-leftnav-kicker">Discovery</div>
         <NavItem to="/search" label="Search" hint="Ctrl+4" icon={<SearchIcon />} />
+        <NavItem to="/components" label="Components" icon={<LayersIcon />} />
+        <NavItem to="/layout" label="Layout" icon={<LayoutIcon />} />
+        <NavItem to="/layout-primitives" label="Layout Primitives" icon={<LayoutIcon />} />
         <NavItem to="/me" label="Me" hint="Ctrl+5" icon={<UserIcon />} />
       </div>
 
@@ -140,7 +165,8 @@ export default function LeftNav() {
       </div>
 
       {extItems.length ? (
-        <div className="mt-1 ghost-card ghost-leftnav-card p-3">
+        <div className="mt-1 ghost-card ghost-leftnav-card relative overflow-hidden p-3">
+          <SurfaceOverlay />
           <div className="ghost-leftnav-kicker">Extensions</div>
           <div className="flex flex-col gap-2">
             {extItems.map((it) =>
@@ -149,9 +175,10 @@ export default function LeftNav() {
               ) : (
                 <button
                   key={it.id}
-                  className="ghost-navitem"
+                  className="ghost-navitem relative overflow-hidden"
                   onClick={() => it.onSelect?.()}
                 >
+                  <SurfaceOverlay />
                   <span>{it.label}</span>
                   {it.shortcutHint ? <span className="text-[11px] text-white/40">{it.shortcutHint}</span> : null}
                 </button>
@@ -161,7 +188,8 @@ export default function LeftNav() {
         </div>
       ) : null}
 
-      <div className="mt-2 ghost-card ghost-leftnav-card p-3">
+      <div className="mt-2 ghost-card ghost-leftnav-card relative overflow-hidden p-3">
+        <SurfaceOverlay />
         <div className="ghost-leftnav-kicker">Session</div>
         {session ? (
           <div className="mt-1 text-[12px] text-white/60">
