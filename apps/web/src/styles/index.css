@@ -260,6 +260,73 @@ html.ui-brutal-v3 .ghost-pane-header {
   box-shadow: var(--g-shadow-md) var(--g-shadow-md) 0 rgba(var(--g-accent), 0.10);
 }
 
+html.theme-brutal .ghost-card,
+html.theme-brutal .ghost-status,
+html.theme-brutal .ghost-navitem,
+html.theme-brutal .ghost-trends-item {
+  position: relative;
+  overflow: hidden;
+  background:
+    linear-gradient(135deg, rgba(var(--g-accent),0.10), transparent 60%),
+    rgba(5,5,5,0.55);
+  border-color: rgba(var(--g-accent),0.34);
+  box-shadow:
+    0 0 0 1px rgba(0,0,0,0.8) inset,
+    var(--g-shadow-md) var(--g-shadow-md) 0 rgba(var(--g-accent), 0.14);
+}
+
+html.theme-brutal .ghost-card::before,
+html.theme-brutal .ghost-status::before,
+html.theme-brutal .ghost-navitem::before,
+html.theme-brutal .ghost-trends-item::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image:
+    linear-gradient(0deg, rgba(255,255,255,0.04), transparent 45%),
+    radial-gradient(circle, rgba(255,255,255,0.12) 1px, transparent 1.4px);
+  background-size: 100% 100%, 18px 18px;
+  mix-blend-mode: screen;
+  opacity: 0.35;
+}
+
+html.theme-brutal .ghost-card::after,
+html.theme-brutal .ghost-status::after,
+html.theme-brutal .ghost-navitem::after,
+html.theme-brutal .ghost-trends-item::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  box-shadow: inset 0 0 0 1px rgba(var(--g-accent-2), 0.25);
+  opacity: 0.55;
+}
+
+html.theme-brutal .ghost-btn,
+html.theme-brutal .ghost-input {
+  position: relative;
+  overflow: hidden;
+  background:
+    linear-gradient(120deg, rgba(var(--g-accent),0.18), rgba(0,0,0,0.1) 60%),
+    rgba(0,0,0,0.45);
+  border-color: rgba(var(--g-accent),0.48);
+  box-shadow:
+    0 0 0 1px rgba(0,0,0,0.75) inset,
+    var(--g-shadow-sm) var(--g-shadow-sm) 0 rgba(var(--g-accent), 0.18);
+}
+
+html.theme-brutal .ghost-btn::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image:
+    radial-gradient(circle, rgba(255,255,255,0.12) 1px, transparent 1.4px);
+  background-size: 16px 16px;
+  opacity: 0.25;
+}
+
 .ghost-trends {
   background:
     linear-gradient(135deg, rgba(var(--g-accent),0.16), transparent 60%),
@@ -812,12 +879,12 @@ html.ui-brutal-v3 .ghost-pane-header {
 
 /* Theme variants (applied to <html class="theme-...">) */
 html.theme-brutal {
-  --g-bg-0: #0a0f18;
-  --g-bg-1: rgba(255,255,255,0.030);
-  --g-bg-2: rgba(255,255,255,0.060);
-  --g-accent: 74 144 226;
-  --g-accent-2: 30 53 88;
-  --g-border: rgba(74,144,226,0.18);
+  --g-bg-0: #070707;
+  --g-bg-1: rgba(255,255,255,0.035);
+  --g-bg-2: rgba(255,255,255,0.075);
+  --g-accent: 216 175 74;
+  --g-accent-2: 104 237 255;
+  --g-border: rgba(216,175,74,0.28);
 
   --g-radius: 8px;
   --g-cut: 14px;
@@ -890,10 +957,13 @@ html, body {
 html.theme-brutal.ui-brutal-v3 .ghost-shell,
 html.theme-corporate.ui-brutal-v3 .ghost-shell {
   background:
-    repeating-linear-gradient(0deg, rgba(74,144,226,0.10) 0, rgba(74,144,226,0.10) 1px, transparent 1px, transparent 64px),
-    repeating-linear-gradient(90deg, rgba(74,144,226,0.08) 0, rgba(74,144,226,0.08) 1px, transparent 1px, transparent 64px),
-    radial-gradient(900px 620px at 20% 18%, rgba(var(--g-accent), 0.18), transparent 60%),
+    radial-gradient(circle, rgba(var(--g-accent),0.18) 1px, transparent 1.2px),
+    radial-gradient(circle, rgba(255,255,255,0.05) 1px, transparent 1.3px),
+    linear-gradient(90deg, rgba(var(--g-accent),0.12) 0, rgba(var(--g-accent),0.12) 6px, transparent 6px),
+    radial-gradient(900px 620px at 20% 18%, rgba(var(--g-accent), 0.22), transparent 60%),
+    radial-gradient(520px 420px at 80% 20%, rgba(var(--g-accent-2), 0.16), transparent 65%),
     linear-gradient(135deg, var(--g-bg-0), rgba(0,0,0,0.98));
+  background-size: 12px 12px, 18px 18px, 100% 100%, 100% 100%, 100% 100%, 100% 100%;
 }
 
 html.theme-candy.ui-brutal-v3 .ghost-shell {
@@ -933,6 +1003,15 @@ body::before {
     linear-gradient(to bottom, rgba(255,255,255,0.04), transparent 25%, transparent 75%, rgba(0,0,0,0.25));
 }
 
+html.theme-brutal body::before {
+  opacity: 0.12;
+  background-image:
+    radial-gradient(circle at 18% 20%, rgba(216,175,74,0.18), transparent 55%),
+    radial-gradient(circle at 80% 18%, rgba(104,237,255,0.12), transparent 60%),
+    radial-gradient(circle, rgba(255,255,255,0.10) 1px, transparent 1.4px);
+  background-size: 100% 100%, 100% 100%, 22px 22px;
+}
+
 /* Optional noise overlay (toggle with .effects-noise on body) */
 body.effects-noise::after {
   content: "";
@@ -959,6 +1038,14 @@ body.effects-noise::after {
   box-shadow:
     0 0 0 1px var(--g-border-2) inset,
     0 12px 40px rgba(0,0,0,0.35);
+}
+
+html.theme-brutal .ghost-frame {
+  border: 1px solid rgba(216,175,74,0.38);
+  background: rgba(8,8,8,0.48);
+  box-shadow:
+    0 0 0 1px rgba(0,0,0,0.75) inset,
+    var(--g-shadow-lg) var(--g-shadow-lg) 0 rgba(216,175,74,0.16);
 }
 
 .ghost-frame::before {

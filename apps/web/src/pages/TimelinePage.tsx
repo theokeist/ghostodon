@@ -7,6 +7,7 @@ import { useInspectorStore, useStoriesStore } from '@ghostodon/state';
 import StatusCardWithComments from '../components/StatusCardWithComments';
 import StoriesRail from '../components/stories/StoriesRail';
 import { useAutoLoadMore } from '../lib/useAutoLoadMore';
+import SurfaceOverlay from '../components/SurfaceOverlay';
 
 function statusBase(s: GStatus): GStatus {
   return (s as any).reblog ?? s;
@@ -74,7 +75,8 @@ export default function TimelinePage(props: { mode: 'home' | 'local' | 'federate
 
   if (!client) {
     return (
-      <div className="ghost-card p-4">
+      <div className="ghost-card relative overflow-hidden p-4">
+        <SurfaceOverlay />
         <div className="text-[12px] font-black uppercase tracking-[0.22em] text-[rgba(var(--g-accent),0.92)]">Not connected</div>
         <div className="mt-2 text-[12px] text-white/65">
           Use the brutalist portal: OAuth (recommended) or manual token (fallback).
@@ -99,7 +101,8 @@ export default function TimelinePage(props: { mode: 'home' | 'local' | 'federate
       </div>
 
       {q.isError ? (
-        <div className="ghost-card p-3 text-[13px] text-red-100" style={{ borderColor: 'rgba(255,70,70,0.55)', background: 'rgba(255,70,70,0.10)' }}>
+        <div className="ghost-card relative overflow-hidden p-3 text-[13px] text-red-100" style={{ borderColor: 'rgba(255,70,70,0.55)', background: 'rgba(255,70,70,0.10)' }}>
+          <SurfaceOverlay />
           {(q.error as Error).message}
         </div>
       ) : null}
