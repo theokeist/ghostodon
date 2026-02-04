@@ -1,6 +1,6 @@
 import React from 'react';
 import { useQuery, useInfiniteQuery } from '@tanstack/react-query';
-import { Button } from '@ghostodon/ui';
+import { Button, Input } from '@ghostodon/ui';
 import { useGhostodon } from '../../lib/useClient';
 import { useInspectorStore, useStoriesStore } from '@ghostodon/state';
 import StatusCardWithComments from '../StatusCardWithComments';
@@ -16,6 +16,8 @@ export default function ProfileInspector(props: { acctOrId: string }) {
   const setInspector = useInspectorStore((s) => s.setInspector);
   const openStory = useStoriesStore((s) => s.openStory);
   const [tab, setTab] = React.useState<'overview' | 'followers' | 'following'>('overview');
+  const [followersQuery, setFollowersQuery] = React.useState('');
+  const [followingQuery, setFollowingQuery] = React.useState('');
 
   const accountQ = useQuery({
     queryKey: ['account', props.acctOrId, sessionKey],
@@ -72,24 +74,44 @@ export default function ProfileInspector(props: { acctOrId: string }) {
     staleTime: 30_000
   });
 
-  const followersQ = useQuery({
+  const followersQ = useInfiniteQuery({
     queryKey: ['account-followers', accountQ.data?.id, sessionKey],
     enabled: Boolean(client) && Boolean(accountQ.data?.id) && tab === 'followers',
-    queryFn: async () => {
+    initialPageParam: undefined as string | undefined,
+    queryFn: async ({ pageParam }) => {
       if (!client) throw new Error('Not connected');
       if (!accountQ.data?.id) return [];
-      return client.accounts.followers(accountQ.data.id, { limit: 20 });
+      return client.accounts.followers(accountQ.data.id, { limit: 30, maxId: pageParam });
+    },
+    getNextPageParam: (lastPage, allPages) => {
+      if (!lastPage || lastPage.length === 0) return undefined;
+      if (lastPage.length < 30) return undefined;
+      const lastId = lastPage.at(-1)?.id;
+      if (!lastId) return undefined;
+      const prevLastId = allPages.at(-2)?.at(-1)?.id;
+      if (prevLastId === lastId) return undefined;
+      return lastId;
     },
     staleTime: 30_000,
   });
 
-  const followingQ = useQuery({
+  const followingQ = useInfiniteQuery({
     queryKey: ['account-following', accountQ.data?.id, sessionKey],
     enabled: Boolean(client) && Boolean(accountQ.data?.id) && tab === 'following',
-    queryFn: async () => {
+    initialPageParam: undefined as string | undefined,
+    queryFn: async ({ pageParam }) => {
       if (!client) throw new Error('Not connected');
       if (!accountQ.data?.id) return [];
-      return client.accounts.following(accountQ.data.id, { limit: 20 });
+      return client.accounts.following(accountQ.data.id, { limit: 30, maxId: pageParam });
+    },
+    getNextPageParam: (lastPage, allPages) => {
+      if (!lastPage || lastPage.length === 0) return undefined;
+      if (lastPage.length < 30) return undefined;
+      const lastId = lastPage.at(-1)?.id;
+      if (!lastId) return undefined;
+      const prevLastId = allPages.at(-2)?.at(-1)?.id;
+      if (prevLastId === lastId) return undefined;
+      return lastId;
     },
     staleTime: 30_000,
   });
@@ -106,6 +128,37 @@ export default function ProfileInspector(props: { acctOrId: string }) {
   }
 
   const a = accountQ.data;
+  const filteredFollowers = React.useMemo(() => {
+    const list = (followersQ.data?.pages ?? []).flat();
+    const needle = followersQuery.trim().toLowerCase();
+    if (!needle) return list;
+    return list.filter((f) => `${f.displayName ?? ''} ${f.acct}`.toLowerCase().includes(needle));
+  }, [followersQ.data, followersQuery]);
+
+  const filteredFollowing = React.useMemo(() => {
+    const list = (followingQ.data?.pages ?? []).flat();
+    const needle = followingQuery.trim().toLowerCase();
+    if (!needle) return list;
+    return list.filter((f) => `${f.displayName ?? ''} ${f.acct}`.toLowerCase().includes(needle));
+  }, [followingQ.data, followingQuery]);
+
+  const followersAutoRef = useAutoLoadMore(
+    () => {
+      if (tab === 'followers' && followersQ.hasNextPage && !followersQ.isFetchingNextPage) {
+        void followersQ.fetchNextPage();
+      }
+    },
+    tab === 'followers' && Boolean(followersQ.hasNextPage)
+  );
+
+  const followingAutoRef = useAutoLoadMore(
+    () => {
+      if (tab === 'following' && followingQ.hasNextPage && !followingQ.isFetchingNextPage) {
+        void followingQ.fetchNextPage();
+      }
+    },
+    tab === 'following' && Boolean(followingQ.hasNextPage)
+  );
 
   return (
     <div className="flex flex-col gap-3">
@@ -246,7 +299,17 @@ export default function ProfileInspector(props: { acctOrId: string }) {
 
       {tab === 'followers' ? (
         <div className="flex flex-col gap-2">
-          {(followersQ.data ?? []).map((f) => (
+          <div className="flex flex-col gap-2">
+            <div className="text-[12px] font-black uppercase tracking-[0.22em] text-[rgba(var(--g-accent),0.92)]">
+              Followers ({a?.followersCount ?? 0})
+            </div>
+            <Input
+              value={followersQuery}
+              onChange={(e) => setFollowersQuery(e.target.value)}
+              placeholder="Filter followers…"
+            />
+          </div>
+          {filteredFollowers.map((f) => (
             <button
               key={f.id}
               type="button"
@@ -272,15 +335,38 @@ export default function ProfileInspector(props: { acctOrId: string }) {
             </button>
           ))}
           {followersQ.isFetching ? <div className="text-[12px] text-white/40">Loading followers…</div> : null}
-          {!followersQ.isFetching && (followersQ.data?.length ?? 0) === 0 ? (
+          {!followersQ.isFetching && filteredFollowers.length === 0 ? (
             <div className="text-[12px] text-white/40">No followers to show.</div>
           ) : null}
+          <div className="mt-2">
+            {followersQ.hasNextPage ? (
+              <Button
+                onClick={() => followersQ.fetchNextPage()}
+                disabled={followersQ.isFetchingNextPage}
+              >
+                {followersQ.isFetchingNextPage ? 'Loading…' : 'Load more'}
+              </Button>
+            ) : filteredFollowers.length > 0 ? (
+              <div className="text-[11px] text-white/35">End of followers.</div>
+            ) : null}
+          </div>
+          <div ref={followersAutoRef} />
         </div>
       ) : null}
 
       {tab === 'following' ? (
         <div className="flex flex-col gap-2">
-          {(followingQ.data ?? []).map((f) => (
+          <div className="flex flex-col gap-2">
+            <div className="text-[12px] font-black uppercase tracking-[0.22em] text-[rgba(var(--g-accent),0.92)]">
+              Following ({a?.followingCount ?? 0})
+            </div>
+            <Input
+              value={followingQuery}
+              onChange={(e) => setFollowingQuery(e.target.value)}
+              placeholder="Filter following…"
+            />
+          </div>
+          {filteredFollowing.map((f) => (
             <button
               key={f.id}
               type="button"
@@ -306,9 +392,22 @@ export default function ProfileInspector(props: { acctOrId: string }) {
             </button>
           ))}
           {followingQ.isFetching ? <div className="text-[12px] text-white/40">Loading following…</div> : null}
-          {!followingQ.isFetching && (followingQ.data?.length ?? 0) === 0 ? (
+          {!followingQ.isFetching && filteredFollowing.length === 0 ? (
             <div className="text-[12px] text-white/40">No following to show.</div>
           ) : null}
+          <div className="mt-2">
+            {followingQ.hasNextPage ? (
+              <Button
+                onClick={() => followingQ.fetchNextPage()}
+                disabled={followingQ.isFetchingNextPage}
+              >
+                {followingQ.isFetchingNextPage ? 'Loading…' : 'Load more'}
+              </Button>
+            ) : filteredFollowing.length > 0 ? (
+              <div className="text-[11px] text-white/35">End of following.</div>
+            ) : null}
+          </div>
+          <div ref={followingAutoRef} />
         </div>
       ) : null}
     </div>

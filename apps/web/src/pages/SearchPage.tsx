@@ -1,9 +1,10 @@
 import React, { useMemo, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { Button, Input } from '@ghostodon/ui';
+import { Button, InfoCard, Input, UserCard } from '@ghostodon/ui';
 import { useGhostodon } from '../lib/useClient';
 import { useInspectorStore, useStoriesStore } from '@ghostodon/state';
 import StatusCardWithComments from '../components/StatusCardWithComments';
+import SurfaceOverlay from '../components/SurfaceOverlay';
 
 type SearchTab = 'statuses' | 'accounts' | 'hashtags';
 
@@ -16,19 +17,21 @@ export default function SearchPage() {
   const [submitted, setSubmitted] = useState('');
   const [tab, setTab] = useState<SearchTab>('statuses');
 
-  const canSearch = Boolean(client) && submitted.trim().length > 0;
+  const canSearch = submitted.trim().length > 0;
 
   const query = useQuery({
     queryKey: ['search', submitted.trim(), tab, sessionKey],
     queryFn: async () => {
-      if (!client) throw new Error('Not connected');
+      if (!client) {
+        return { accounts: [], statuses: [], hashtags: [] };
+      }
       return client.search.query(submitted.trim(), {
         type: tab,
         limit: 20,
         resolve: true,
       });
     },
-    enabled: canSearch,
+    enabled: canSearch && Boolean(client),
   });
 
   const results = query.data;
@@ -55,7 +58,7 @@ export default function SearchPage() {
   }, [hashtags]);
 
   const hint = useMemo(() => {
-    if (!client) return 'Connect first (Login / manual token).';
+    if (!client) return 'Connect to search.';
     if (!submitted) return 'Type a query and hit Enter.';
     if (query.isFetching) return 'Searching…';
     if (query.isError) return (query.error as Error).message;
@@ -64,10 +67,13 @@ export default function SearchPage() {
     return `${statuses.length} posts`;
   }, [client, submitted, query.isFetching, query.isError, query.error, tab, accounts.length, hashtags.length, statuses.length]);
 
+  const stripHtml = (value?: string) => (value ? value.replace(/<[^>]+>/g, '') : '');
+
   return (
     <div className="flex flex-col gap-3">
       <div className="grid gap-3 lg:grid-cols-[1.2fr_0.8fr]">
-        <div className="ghost-card p-4">
+        <div className="ghost-card relative overflow-hidden p-4">
+          <SurfaceOverlay />
           <div className="portal-kicker">Search</div>
           <div className="mt-2 flex flex-col gap-2">
             <form
@@ -126,18 +132,20 @@ export default function SearchPage() {
           </div>
         </div>
 
-        <div className="ghost-card ghost-trends p-4">
+        <div className="ghost-card ghost-trends relative overflow-hidden p-4">
+          <SurfaceOverlay />
           <div className="portal-kicker">Trends</div>
           <div className="mt-2 text-[12px] text-white/55">Live pulse from tags & conversations.</div>
           <div className="mt-3 flex flex-col gap-2">
             {trendItems.map((trend) => (
               <a
                 key={trend.name}
-                className="ghost-trends-item"
+                className="ghost-trends-item relative overflow-hidden"
                 href={trend.url || '#'}
                 target={trend.url ? '_blank' : undefined}
                 rel={trend.url ? 'noreferrer' : undefined}
               >
+                <SurfaceOverlay />
                 <div className="ghost-trends-tag">#{trend.name}</div>
                 <div className="ghost-trends-meta">{trend.hint}</div>
               </a>
@@ -146,8 +154,33 @@ export default function SearchPage() {
         </div>
       </div>
 
+      <div className="grid gap-3 md:grid-cols-3">
+        <InfoCard
+          title="Signal"
+          status="Live"
+          tone="success"
+          hoverTone="warning"
+          content="Track the hottest tags and conversations as they spike."
+        />
+        <InfoCard
+          title="People"
+          status="Focus"
+          tone="default"
+          hoverTone="success"
+          content="Jump into accounts that match your query and follow in one click."
+        />
+        <InfoCard
+          title="Threads"
+          status="Scan"
+          tone="warning"
+          hoverTone="default"
+          content="Skim results fast, open threads, and reply without losing context."
+        />
+      </div>
+
       {!client ? (
-        <div className="ghost-card p-4">
+        <div className="ghost-card relative overflow-hidden p-4">
+          <SurfaceOverlay />
           <div className="text-[12px] text-white/65">You are not connected.</div>
           <div className="mt-2 flex items-center gap-2">
             <Button onClick={() => (window.location.href = '/login')}>Login</Button>
@@ -176,35 +209,19 @@ export default function SearchPage() {
       {tab === 'accounts' ? (
         <div className="flex flex-col gap-3">
           {accounts.map((a) => (
-            <button
+            <UserCard
               key={a.id}
-              type="button"
-              className="ghost-card p-4 text-left hover:opacity-95"
+              name={a.displayName || a.acct}
+              handle={a.acct}
+              summary={stripHtml(a.noteHtml) || `@${a.acct}`}
+              avatarUrl={a.avatar}
+              actions={
+                <Button size="sm" onClick={() => setInspector({ type: 'profile', acctOrId: a.id || a.acct })}>
+                  View
+                </Button>
+              }
               onClick={() => setInspector({ type: 'profile', acctOrId: a.id || a.acct })}
-            >
-              <div className="flex items-start gap-3">
-                <img
-                  src={a.avatar}
-                  alt=""
-                  className="h-12 w-12 border-2 border-white/20 bg-black/30 object-cover"
-                  style={{ borderRadius: 'var(--g-radius)' }}
-                  loading="lazy"
-                  decoding="async"
-                />
-                <div className="min-w-0 flex-1">
-                  <div className="text-[13px] font-black uppercase tracking-[0.14em] text-white/90 truncate">
-                    {a.displayName || a.acct}
-                  </div>
-                  <div className="mt-1 font-mono text-[12px] text-white/60 truncate">@{a.acct}</div>
-                  {a.noteHtml ? (
-                    <div
-                      className="mt-2 prose prose-invert prose-p:my-1 max-w-none text-[12px] text-white/70"
-                      dangerouslySetInnerHTML={{ __html: a.noteHtml }}
-                    />
-                  ) : null}
-                </div>
-              </div>
-            </button>
+            />
           ))}
           {!query.isFetching && submitted && accounts.length === 0 ? (
             <div className="text-[12px] text-white/40">No accounts found.</div>
@@ -217,11 +234,12 @@ export default function SearchPage() {
           {hashtags.map((h) => (
             <a
               key={h.name}
-              className="ghost-card p-4 block hover:opacity-95"
+              className="ghost-card relative overflow-hidden p-4 block hover:opacity-95"
               href={h.url || '#'}
               target={h.url ? '_blank' : undefined}
               rel={h.url ? 'noreferrer' : undefined}
             >
+              <SurfaceOverlay />
               <div className="text-[13px] font-black uppercase tracking-[0.14em] text-white/90">#{h.name}</div>
               <div className="mt-1 text-[12px] text-white/55">Open tag on server</div>
             </a>

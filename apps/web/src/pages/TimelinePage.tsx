@@ -1,12 +1,13 @@
-import React, { useMemo } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useInfiniteQuery } from '@tanstack/react-query';
-import { Button } from '@ghostodon/ui';
+import { Button, Input } from '@ghostodon/ui';
 import type { GStatus } from '@ghostodon/core';
 import { useGhostodon } from '../lib/useClient';
 import { useInspectorStore, useStoriesStore } from '@ghostodon/state';
 import StatusCardWithComments from '../components/StatusCardWithComments';
 import StoriesRail from '../components/stories/StoriesRail';
 import { useAutoLoadMore } from '../lib/useAutoLoadMore';
+import SurfaceOverlay from '../components/SurfaceOverlay';
 
 function statusBase(s: GStatus): GStatus {
   return (s as any).reblog ?? s;
@@ -16,6 +17,10 @@ export default function TimelinePage(props: { mode: 'home' | 'local' | 'federate
   const { client, sessionKey } = useGhostodon();
   const setInspector = useInspectorStore((s) => s.setInspector);
   const openStory = useStoriesStore((s) => s.openStory);
+  const [filter, setFilter] = useState('');
+  const [autoLoadEnabled, setAutoLoadEnabled] = useState(true);
+  const [autoLoadDelayMs] = useState(1500);
+  const autoLoadTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const queryKey = useMemo(() => ['timeline', props.mode, sessionKey], [props.mode, sessionKey]);
 
@@ -52,6 +57,16 @@ export default function TimelinePage(props: { mode: 'home' | 'local' | 'federate
 
   const pages = q.data?.pages ?? [];
   const items = pages.flat() as GStatus[];
+  const needle = filter.trim().toLowerCase();
+  const filteredItems = useMemo(() => {
+    if (!needle) return items;
+    return items.filter((status) => {
+      const base = statusBase(status);
+      const accountText = `${base.account.displayName} ${base.account.acct}`.toLowerCase();
+      const contentText = base.contentHtml.replace(/<[^>]+>/g, '').toLowerCase();
+      return accountText.includes(needle) || contentText.includes(needle);
+    });
+  }, [items, needle]);
 
   const firstChunk = pages[0] as GStatus[] | undefined;
 
@@ -67,14 +82,25 @@ export default function TimelinePage(props: { mode: 'home' | 'local' | 'federate
 
   const autoRef = useAutoLoadMore(
     () => {
-      if (q.hasNextPage && !q.isFetchingNextPage) void q.fetchNextPage();
+      if (!autoLoadEnabled || !q.hasNextPage || q.isFetchingNextPage) return;
+      if (autoLoadTimer.current) clearTimeout(autoLoadTimer.current);
+      autoLoadTimer.current = setTimeout(() => {
+        void q.fetchNextPage();
+      }, autoLoadDelayMs);
     },
-    Boolean(client) && Boolean(q.hasNextPage)
+    Boolean(client) && autoLoadEnabled && Boolean(q.hasNextPage)
   );
+
+  useEffect(() => {
+    return () => {
+      if (autoLoadTimer.current) clearTimeout(autoLoadTimer.current);
+    };
+  }, []);
 
   if (!client) {
     return (
-      <div className="ghost-card p-4">
+      <div className="ghost-card relative overflow-hidden p-4">
+        <SurfaceOverlay />
         <div className="text-[12px] font-black uppercase tracking-[0.22em] text-[rgba(var(--g-accent),0.92)]">Not connected</div>
         <div className="mt-2 text-[12px] text-white/65">
           Use the brutalist portal: OAuth (recommended) or manual token (fallback).
@@ -89,17 +115,33 @@ export default function TimelinePage(props: { mode: 'home' | 'local' | 'federate
 
   return (
     <div className="flex flex-col gap-3">
-      <div className="flex items-center gap-2">
+      <div className="flex flex-wrap items-center gap-2">
         <Button size="sm" variant="ghost" onClick={() => q.refetch()} disabled={q.isFetching}>
           Refresh
         </Button>
+        <Button
+          size="sm"
+          variant="ghost"
+          onClick={() => setAutoLoadEnabled((prev) => !prev)}
+        >
+          {autoLoadEnabled ? 'Pause' : 'Play'}
+        </Button>
+        <div className="text-[11px] text-white/40">
+          Auto-load {autoLoadEnabled ? 'on' : 'off'} · {autoLoadDelayMs / 1000}s delay
+        </div>
+        <Input
+          value={filter}
+          onChange={(e) => setFilter(e.target.value)}
+          placeholder="Filter timeline…"
+        />
         <div className="text-[12px] text-white/40">
-          {q.isFetching ? 'Fetching…' : q.isError ? (q.error as Error).message : `${items.length} items`}
+          {q.isFetching ? 'Fetching…' : q.isError ? (q.error as Error).message : `${filteredItems.length} items`}
         </div>
       </div>
 
       {q.isError ? (
-        <div className="ghost-card p-3 text-[13px] text-red-100" style={{ borderColor: 'rgba(255,70,70,0.55)', background: 'rgba(255,70,70,0.10)' }}>
+        <div className="ghost-card relative overflow-hidden p-3 text-[13px] text-red-100" style={{ borderColor: 'rgba(255,70,70,0.55)', background: 'rgba(255,70,70,0.10)' }}>
+          <SurfaceOverlay />
           {(q.error as Error).message}
         </div>
       ) : null}
@@ -108,7 +150,7 @@ export default function TimelinePage(props: { mode: 'home' | 'local' | 'federate
       <StoriesRail statuses={firstChunk} />
 
       <div className="flex flex-col gap-3">
-        {items.map((s) => {
+        {filteredItems.map((s) => {
           const base = statusBase(s);
           const key = base.account.id || base.account.acct;
           const hasStory = storySet.has(key);
@@ -124,6 +166,9 @@ export default function TimelinePage(props: { mode: 'home' | 'local' | 'federate
             />
           );
         })}
+        {!q.isFetching && filteredItems.length === 0 ? (
+          <div className="text-[12px] text-white/40">No matching posts.</div>
+        ) : null}
       </div>
 
       <div className="mt-2 flex items-center justify-between gap-2">

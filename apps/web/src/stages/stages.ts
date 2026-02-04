@@ -9,7 +9,12 @@ export type Stage = {
 
 export const STAGES: Stage[] = [
   { id: 1, title: 'Bootstrap monorepo (React + UI + Core)', status: 'done' },
-  { id: 2, title: 'PC-first 3-pane layout shell', status: 'done' },
+  {
+    id: 2,
+    title: 'PC-first 3-pane layout shell',
+    status: 'done',
+    notes: 'Resizable left/right panes with collapsible toggles'
+  },
   {
     id: 3,
     title: 'Connect (manual token) + session persistence',
@@ -19,8 +24,8 @@ export const STAGES: Stage[] = [
   {
     id: 4,
     title: 'OAuth PKCE (web + desktop) flow',
-    status: 'todo',
-    notes: 'PKCE helpers included; full flow staged'
+    status: 'wip',
+    notes: 'Web OAuth flow wired; desktop wiring pending'
   },
   { id: 5, title: 'Timelines (home/local/federated)', status: 'done' },
   { id: 6, title: 'Thread inspector (status + context)', status: 'done' },
