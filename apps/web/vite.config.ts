@@ -9,7 +9,8 @@ export default defineConfig({
     preserveSymlinks: true
   },
   optimizeDeps: {
-    include: ['@ghostodon/core', '@ghostodon/ui']
+    include: ['@ghostodon/core'],
+    exclude: ['@ghostodon/ui']
   },
   server: {
     port: 5173,

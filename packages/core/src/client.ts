@@ -9,6 +9,8 @@ import * as notifications from "./notifications.js";
 import * as search from "./search.js";
 import * as lists from "./lists.js";
 import * as stream from "./stream.js";
+import * as trends from "./trends.js";
+import * as directory from "./directory.js";
 
 export type GhostodonClient = {
   session: Session;
@@ -48,6 +50,12 @@ export type GhostodonClient = {
   };
   search: {
     query(q: string, params?: Parameters<typeof search.searchQuery>[2]): Promise<GSearchResult>;
+  };
+  trends: {
+    tags(params?: { limit?: number }): Promise<import("./types.js").GTag[]>;
+  };
+  directory: {
+    list(params?: { limit?: number; offset?: number; order?: "active" | "new"; local?: boolean }): Promise<GAccount[]>;
   };
   lists: {
     list(): Promise<lists.GList[]>;
@@ -111,6 +119,12 @@ export function createClient(session: Session): GhostodonClient {
     },
     search: {
       query: (q, p) => search.searchQuery(masto, q, p),
+    },
+    trends: {
+      tags: (p) => trends.listTrendTags(masto, p),
+    },
+    directory: {
+      list: (p) => directory.listDirectory(masto, p),
     },
     lists: {
       list: () => lists.listLists(masto),

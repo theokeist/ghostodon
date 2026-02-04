@@ -3,6 +3,7 @@ import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { auth } from '@ghostodon/core';
 import { BrandLockup, Button, Input } from '@ghostodon/ui';
 import { useSessionStore } from '@ghostodon/state';
+import SurfaceOverlay from '../components/SurfaceOverlay';
 
 const OAUTH_KEY = 'ghostodon.oauth';
 
@@ -123,7 +124,8 @@ export default function LoginPage() {
       </section>
 
       <div className="portal-grid">
-        <div className="ghost-card portal-panel">
+        <div className="ghost-card portal-panel relative overflow-hidden">
+          <SurfaceOverlay />
           <div className="portal-kicker">Instance</div>
           <div className="portal-help">We normalize to <span className="text-white/85">https://&lt;host&gt;</span>.</div>
           <div className="mt-3">
@@ -174,10 +176,16 @@ export default function LoginPage() {
             </div>
           )}
 
-          {err ? <div className="mt-4 ghost-card p-3 text-[13px] text-red-100" style={{ borderColor: 'rgba(255,70,70,0.55)', background: 'rgba(255,70,70,0.10)' }}>{err}</div> : null}
+          {err ? (
+            <div className="mt-4 ghost-card relative overflow-hidden p-3 text-[13px] text-red-100" style={{ borderColor: 'rgba(255,70,70,0.55)', background: 'rgba(255,70,70,0.10)' }}>
+              <SurfaceOverlay />
+              {err}
+            </div>
+          ) : null}
         </div>
 
-        <div className="ghost-card portal-panel">
+        <div className="ghost-card portal-panel relative overflow-hidden">
+          <SurfaceOverlay />
           <div className="portal-kicker">Why this client</div>
           <div className="portal-help">
             Bird’s-eye dashboard first. Timelines are widgets. The UI is brutal, readable, and fast.
