@@ -1,4 +1,4 @@
-import type { GAccount, GMedia, GNotification, GSearchResult, GStatus, GContext, GInstance } from "./types.js";
+import type { GAccount, GMedia, GNotification, GSearchResult, GStatus, GContext, GInstance, GTag } from "./types.js";
 
 // These normalizers keep your UI insulated from Masto.js entity shapes.
 // We keep `raw` for escape hatches.
@@ -120,10 +120,25 @@ export function normalizeSearchResult(r: any): GSearchResult {
   return {
     accounts: Array.isArray(r?.accounts) ? r.accounts.map(normalizeAccount) : [],
     statuses: Array.isArray(r?.statuses) ? r.statuses.map(normalizeStatus) : [],
-    hashtags: Array.isArray(r?.hashtags)
-      ? r.hashtags.map((h: any) => ({ name: String(h?.name ?? ""), url: h?.url ? String(h.url) : undefined, raw: h }))
-      : [],
+    hashtags: Array.isArray(r?.hashtags) ? r.hashtags.map(normalizeTag) : [],
     raw: r,
+  };
+}
+
+export function normalizeTag(t: any): GTag {
+  const history = Array.isArray(t?.history)
+    ? t.history.map((entry: any) => ({
+        day: String(entry?.day ?? ""),
+        uses: asNum(entry?.uses) ?? 0,
+        accounts: asNum(entry?.accounts) ?? 0,
+      }))
+    : undefined;
+
+  return {
+    name: String(t?.name ?? ""),
+    url: t?.url ? String(t.url) : undefined,
+    history,
+    raw: t,
   };
 }
 

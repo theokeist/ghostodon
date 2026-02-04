@@ -76,7 +76,14 @@ export type GNotification = {
 export type GSearchResult = {
   accounts: GAccount[];
   statuses: GStatus[];
-  hashtags: { name: string; url?: string; raw?: unknown }[];
+  hashtags: GTag[];
+  raw?: unknown;
+};
+
+export type GTag = {
+  name: string;
+  url?: string;
+  history?: { day: string; uses: number; accounts: number }[];
   raw?: unknown;
 };
 

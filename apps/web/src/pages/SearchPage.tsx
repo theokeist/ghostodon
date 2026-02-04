@@ -17,12 +17,54 @@ export default function SearchPage() {
   const [submitted, setSubmitted] = useState('');
   const [tab, setTab] = useState<SearchTab>('statuses');
 
-  const canSearch = Boolean(client) && submitted.trim().length > 0;
+  const canSearch = submitted.trim().length > 0;
 
   const query = useQuery({
     queryKey: ['search', submitted.trim(), tab, sessionKey],
     queryFn: async () => {
-      if (!client) throw new Error('Not connected');
+      if (!client) {
+        const seed = submitted.trim() || 'ghostodon';
+        return {
+          accounts: [
+            {
+              id: `mock-${seed}-1`,
+              acct: `${seed}.studio`,
+              displayName: `${seed} Studio`,
+              avatar: 'https://images.unsplash.com/photo-1544723795-3fb6469f5b39?auto=format&fit=crop&w=200&q=80',
+              noteHtml: `<p>Preview account for <strong>${seed}</strong>.</p>`,
+            },
+            {
+              id: `mock-${seed}-2`,
+              acct: `${seed}.ops`,
+              displayName: `${seed} Ops`,
+              avatar: 'https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&w=200&q=80',
+              noteHtml: `<p>Operations updates and workflow tips.</p>`,
+            },
+          ],
+          statuses: [
+            {
+              id: `mock-status-${seed}-1`,
+              createdAt: new Date().toISOString(),
+              account: {
+                id: `mock-${seed}-acct`,
+                acct: `${seed}.studio`,
+                displayName: `${seed} Studio`,
+                avatar: 'https://images.unsplash.com/photo-1544723795-3fb6469f5b39?auto=format&fit=crop&w=200&q=80',
+              },
+              contentHtml: `<p>Preview post for <strong>${seed}</strong> search.</p>`,
+              repliesCount: 2,
+              reblogsCount: 1,
+              favouritesCount: 5,
+              media: [],
+              spoilerText: '',
+            },
+          ],
+          hashtags: [
+            { name: seed, url: '#', hint: 'Preview' },
+            { name: `${seed}design`, url: '#', hint: 'Mock' },
+          ],
+        } as typeof query.data;
+      }
       return client.search.query(submitted.trim(), {
         type: tab,
         limit: 20,
@@ -56,7 +98,7 @@ export default function SearchPage() {
   }, [hashtags]);
 
   const hint = useMemo(() => {
-    if (!client) return 'Connect first (Login / manual token).';
+    if (!client) return 'Showing preview results (connect to search).';
     if (!submitted) return 'Type a query and hit Enter.';
     if (query.isFetching) return 'Searching…';
     if (query.isError) return (query.error as Error).message;

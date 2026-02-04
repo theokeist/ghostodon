@@ -152,6 +152,7 @@ export default function LeftNav() {
       <div className="ghost-leftnav-section">
         <div className="ghost-leftnav-kicker">Discovery</div>
         <NavItem to="/search" label="Search" hint="Ctrl+4" icon={<SearchIcon />} />
+        <NavItem to="/explore" label="Explore" icon={<GlobeIcon />} />
         <NavItem to="/components" label="Components" icon={<LayersIcon />} />
         <NavItem to="/layout" label="Layout" icon={<LayoutIcon />} />
         <NavItem to="/layout-primitives" label="Layout Primitives" icon={<LayoutIcon />} />

@@ -4,6 +4,7 @@ import { Pane, PaneBody, PaneHeader, Button, Container, Row, Column } from '@gho
 import LeftNav from '../components/LeftNav';
 import TimelinePage from '../pages/TimelinePage';
 import SearchPage from '../pages/SearchPage';
+import ExplorePage from '../pages/ExplorePage';
 import MePage from '../pages/MePage';
 import LoginPage from '../pages/LoginPage';
 import RegisterPage from '../pages/RegisterPage';
@@ -175,6 +176,7 @@ export default function App() {
                   <Route path="/local" element={<TimelinePage mode="local" />} />
                   <Route path="/federated" element={<TimelinePage mode="federated" />} />
                   <Route path="/search" element={<SearchPage />} />
+                  <Route path="/explore" element={<ExplorePage />} />
                   <Route path="/components" element={<ComponentsPage />} />
                   <Route path="/layout" element={<LayoutPage />} />
                   <Route path="/layout-primitives" element={<LayoutPrimitivesPage />} />
