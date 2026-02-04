@@ -1,6 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { BrandLockup, Button, Input } from '@ghostodon/ui';
+import SurfaceOverlay from '../components/SurfaceOverlay';
 
 function normalizeOrigin(raw: string): string {
   const v = raw.trim();
@@ -38,7 +39,8 @@ export default function RegisterPage() {
       </section>
 
       <div className="portal-grid">
-        <div className="ghost-card portal-panel">
+        <div className="ghost-card portal-panel relative overflow-hidden">
+          <SurfaceOverlay />
           <div className="portal-kicker">Instance</div>
           <div className="portal-help">We normalize to <span className="text-white/85">https://&lt;host&gt;</span>. Rules and moderation differ per instance.</div>
           <div className="mt-3">
@@ -74,7 +76,8 @@ export default function RegisterPage() {
           ) : null}
         </div>
 
-        <div className="ghost-card portal-panel">
+        <div className="ghost-card portal-panel relative overflow-hidden">
+          <SurfaceOverlay />
           <div className="portal-kicker">Picking an instance</div>
           <ul className="mt-4 list-disc space-y-2 pl-5 text-[13px] text-white/70">
             <li>Check rules + content policy. Moderation style varies.</li>

@@ -1,9 +1,10 @@
 import React, { useMemo, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { Button, Input } from '@ghostodon/ui';
+import { Button, InfoCard, Input } from '@ghostodon/ui';
 import { useGhostodon } from '../lib/useClient';
 import { useInspectorStore, useStoriesStore } from '@ghostodon/state';
 import StatusCardWithComments from '../components/StatusCardWithComments';
+import SurfaceOverlay from '../components/SurfaceOverlay';
 
 type SearchTab = 'statuses' | 'accounts' | 'hashtags';
 
@@ -16,12 +17,54 @@ export default function SearchPage() {
   const [submitted, setSubmitted] = useState('');
   const [tab, setTab] = useState<SearchTab>('statuses');
 
-  const canSearch = Boolean(client) && submitted.trim().length > 0;
+  const canSearch = submitted.trim().length > 0;
 
   const query = useQuery({
     queryKey: ['search', submitted.trim(), tab, sessionKey],
     queryFn: async () => {
-      if (!client) throw new Error('Not connected');
+      if (!client) {
+        const seed = submitted.trim() || 'ghostodon';
+        return {
+          accounts: [
+            {
+              id: `mock-${seed}-1`,
+              acct: `${seed}.studio`,
+              displayName: `${seed} Studio`,
+              avatar: 'https://images.unsplash.com/photo-1544723795-3fb6469f5b39?auto=format&fit=crop&w=200&q=80',
+              noteHtml: `<p>Preview account for <strong>${seed}</strong>.</p>`,
+            },
+            {
+              id: `mock-${seed}-2`,
+              acct: `${seed}.ops`,
+              displayName: `${seed} Ops`,
+              avatar: 'https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&w=200&q=80',
+              noteHtml: `<p>Operations updates and workflow tips.</p>`,
+            },
+          ],
+          statuses: [
+            {
+              id: `mock-status-${seed}-1`,
+              createdAt: new Date().toISOString(),
+              account: {
+                id: `mock-${seed}-acct`,
+                acct: `${seed}.studio`,
+                displayName: `${seed} Studio`,
+                avatar: 'https://images.unsplash.com/photo-1544723795-3fb6469f5b39?auto=format&fit=crop&w=200&q=80',
+              },
+              contentHtml: `<p>Preview post for <strong>${seed}</strong> search.</p>`,
+              repliesCount: 2,
+              reblogsCount: 1,
+              favouritesCount: 5,
+              media: [],
+              spoilerText: '',
+            },
+          ],
+          hashtags: [
+            { name: seed, url: '#', hint: 'Preview' },
+            { name: `${seed}design`, url: '#', hint: 'Mock' },
+          ],
+        } as typeof query.data;
+      }
       return client.search.query(submitted.trim(), {
         type: tab,
         limit: 20,
@@ -55,7 +98,7 @@ export default function SearchPage() {
   }, [hashtags]);
 
   const hint = useMemo(() => {
-    if (!client) return 'Connect first (Login / manual token).';
+    if (!client) return 'Showing preview results (connect to search).';
     if (!submitted) return 'Type a query and hit Enter.';
     if (query.isFetching) return 'Searching…';
     if (query.isError) return (query.error as Error).message;
@@ -67,7 +110,8 @@ export default function SearchPage() {
   return (
     <div className="flex flex-col gap-3">
       <div className="grid gap-3 lg:grid-cols-[1.2fr_0.8fr]">
-        <div className="ghost-card p-4">
+        <div className="ghost-card relative overflow-hidden p-4">
+          <SurfaceOverlay />
           <div className="portal-kicker">Search</div>
           <div className="mt-2 flex flex-col gap-2">
             <form
@@ -126,18 +170,20 @@ export default function SearchPage() {
           </div>
         </div>
 
-        <div className="ghost-card ghost-trends p-4">
+        <div className="ghost-card ghost-trends relative overflow-hidden p-4">
+          <SurfaceOverlay />
           <div className="portal-kicker">Trends</div>
           <div className="mt-2 text-[12px] text-white/55">Live pulse from tags & conversations.</div>
           <div className="mt-3 flex flex-col gap-2">
             {trendItems.map((trend) => (
               <a
                 key={trend.name}
-                className="ghost-trends-item"
+                className="ghost-trends-item relative overflow-hidden"
                 href={trend.url || '#'}
                 target={trend.url ? '_blank' : undefined}
                 rel={trend.url ? 'noreferrer' : undefined}
               >
+                <SurfaceOverlay />
                 <div className="ghost-trends-tag">#{trend.name}</div>
                 <div className="ghost-trends-meta">{trend.hint}</div>
               </a>
@@ -146,8 +192,33 @@ export default function SearchPage() {
         </div>
       </div>
 
+      <div className="grid gap-3 md:grid-cols-3">
+        <InfoCard
+          title="Signal"
+          status="Live"
+          tone="success"
+          hoverTone="warning"
+          content="Track the hottest tags and conversations as they spike."
+        />
+        <InfoCard
+          title="People"
+          status="Focus"
+          tone="default"
+          hoverTone="success"
+          content="Jump into accounts that match your query and follow in one click."
+        />
+        <InfoCard
+          title="Threads"
+          status="Scan"
+          tone="warning"
+          hoverTone="default"
+          content="Skim results fast, open threads, and reply without losing context."
+        />
+      </div>
+
       {!client ? (
-        <div className="ghost-card p-4">
+        <div className="ghost-card relative overflow-hidden p-4">
+          <SurfaceOverlay />
           <div className="text-[12px] text-white/65">You are not connected.</div>
           <div className="mt-2 flex items-center gap-2">
             <Button onClick={() => (window.location.href = '/login')}>Login</Button>
@@ -179,9 +250,10 @@ export default function SearchPage() {
             <button
               key={a.id}
               type="button"
-              className="ghost-card p-4 text-left hover:opacity-95"
+              className="ghost-card relative overflow-hidden p-4 text-left hover:opacity-95"
               onClick={() => setInspector({ type: 'profile', acctOrId: a.id || a.acct })}
             >
+              <SurfaceOverlay />
               <div className="flex items-start gap-3">
                 <img
                   src={a.avatar}
@@ -217,11 +289,12 @@ export default function SearchPage() {
           {hashtags.map((h) => (
             <a
               key={h.name}
-              className="ghost-card p-4 block hover:opacity-95"
+              className="ghost-card relative overflow-hidden p-4 block hover:opacity-95"
               href={h.url || '#'}
               target={h.url ? '_blank' : undefined}
               rel={h.url ? 'noreferrer' : undefined}
             >
+              <SurfaceOverlay />
               <div className="text-[13px] font-black uppercase tracking-[0.14em] text-white/90">#{h.name}</div>
               <div className="mt-1 text-[12px] text-white/55">Open tag on server</div>
             </a>
